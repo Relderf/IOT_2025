@@ -52,7 +52,7 @@ void TelegramBot::recibirMensajes(int cantNuevosMensajes) {
         Serial.println(".");
 
         if (!esChatValido(chatId)) {
-            Serial.println("Mensaje " + String(i) + " rechazado.");
+            Serial.println("TelegramBot: Mensaje " + String(i) + " rechazado.");
             bot.sendMessage(chatId, "Acceso denegado. Usuario no autorizado.", "");
             continue;
         }
@@ -64,6 +64,7 @@ void TelegramBot::recibirMensajes(int cantNuevosMensajes) {
         if (it != commandHandlers.end()) {
             it->second(chatId);
         } else {
+            Serial.println("TelegramBot: Mensaje " + String(i) + " ignorado.");
             sendMessage(chatId, "Comando no encontrado.");
         }
     }

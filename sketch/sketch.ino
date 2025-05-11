@@ -55,13 +55,13 @@ TempSensor tempSensor(TEMP_SENSOR_PIN, TEMP_SENSOR_DELAY);
 float ultimaTemperatura;
 bool modoAutomatico = VENTANAS_MODO_AUTOMATICO;
 
-void checkTemperatura() {
+void checkTemperatura(bool forzar = false) {
   float nuevaTemperatura = tempSensor.getTemperatura();
   if (!tempSensor.temperaturaValida()) {
     Serial.println("Error al obtener la temperatura.");
     return;
   }
-  if (ultimaTemperatura != nuevaTemperatura) {
+  if (forzar || (ultimaTemperatura != nuevaTemperatura)) {
     ultimaTemperatura = nuevaTemperatura;
     if (modoAutomatico && (ultimaTemperatura > TEMP_ALTA)) {
       abrirVentanas();
@@ -94,6 +94,7 @@ unsigned long ultimaNotificacionBot;
 TelegramBot telegramBot(TOKEN_BOT, wifiConn.getCliente(), BOT_INTERVALO_CHEQUEO_MENSAJES);
 
 void comandoAyuda(String chatId) {
+  Serial.println("TelegramBot: Informando ayuda...");
   String welcome = "¡Hola! Estos son los comandos disponibles:\n";
   welcome += "/activar - Activa el modo automático de ventanas.\n";
   welcome += "/desactivar - Desactiva el modo automático de ventanas.\n";
@@ -107,6 +108,7 @@ void comandoActivarModoAutomatico(String chatId) {
   Serial.println("TelegramBot: Activando modo automático...");
   telegramBot.sendMessage(chatId, "Modo automático: ACTIVADO.");
   modoAutomatico = true;
+  checkTemperatura(true);
 }
 
 void comandoDesactivarModoAutomatico(String chatId) {
