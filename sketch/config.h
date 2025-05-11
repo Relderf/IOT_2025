@@ -1,0 +1,10 @@
+#define MOTOR_PIN 2
+#define MOTOR_DEFAULT_ESTADO false
+#define MOTOR_DURACION_MS 10000
+
+#define VENTANAS_DEFAULT_ESTADO false
+
+#define TEMP_SENSOR_PIN 15
+#define TEMP_ALTA 30.0
+#define TEMP_BAJA 20.0
+#define TEMP_SENSOR_DELAY 2000

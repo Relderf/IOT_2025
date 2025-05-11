@@ -1,99 +1,124 @@
-// Led
-#include <DHT.h>
-#define DHTPIN 15
-#define DHTTYPE DHT22
-#define LEDPIN 2
-DHT dht(DHTPIN, DHTTYPE);
+#include "env.h"
+#include "config.h"
 
-// Wifi
-#ifdef ESP32
-#include <WiFi.h>
-#else
-#include <ESP8266WiFi.h>
-#endif
-#include <WiFiClientSecure.h>
-const char* ssid = "Wokwi-GUEST";
-const char* password = "";
-WiFiClientSecure clienteWifi;
+
+// Módulo Motor.
+// ---------------------------------
+#include "MotorDriver.h"
+MotorDriver motor(MOTOR_PIN);
+// ---------------------------------
+
+
+// Módulo Ventanas.
+// ---------------------------------
+boolean ventanasAbiertas = VENTANAS_DEFAULT_ESTADO;
+
+bool ventanasEnUso() {
+  return motor.estaEncendido();
+}
+
+void abrirVentanas() {
+  if (!ventanasEnUso() && !ventanasAbiertas) {
+    Serial.println("Abriendo ventanas...");
+    motor.encender();
+    ventanasAbiertas = true;
+  }
+}
+
+void cerrarVentanas() {
+  if (!ventanasEnUso() && ventanasAbiertas) {
+    Serial.println("Cerrando ventanas...");
+    motor.encender();
+    ventanasAbiertas = false;
+  }
+}
+
+void printVentanas() {
+  Serial.print("Ventanas: ");
+  if (ventanasEnUso()) {
+    Serial.println(ventanasAbiertas ? "Abriendo..." : "Cerrando...");
+  } else {
+    Serial.println(ventanasAbiertas ? "Abiertas." : "Cerradas.");
+  }
+}
+// ---------------------------------
+
+
+// Módulo Temperatura.
+// ---------------------------------
+#include "TempSensor.h"
+TempSensor tempSensor(TEMP_SENSOR_PIN);
+const unsigned long intervaloLecturaTempMs = TEMP_SENSOR_DELAY;
+unsigned long ultimaLecturaTempMs = 0;
+float temperatura;
+
+bool temperaturaValida() {
+  return !isnan(temperatura);
+}
+
+void checkTemperatura() {
+  if ((millis() - ultimaLecturaTempMs) > intervaloLecturaTempMs) {
+    ultimaLecturaTempMs = millis();
+    temperatura = tempSensor.getTemperatura();
+    if (!temperaturaValida()) {
+      Serial.println("Error al obtener la temperatura.");
+    } else {
+      if (temperatura > TEMP_ALTA) {
+        abrirVentanas();
+      } else if (temperatura < TEMP_BAJA) {
+        cerrarVentanas();
+      }
+    }
+  }
+}
+
+void printTemperatura() {
+  if (temperaturaValida()) {
+    Serial.println("Temperatura: " + String(temperatura) + " °C.");
+  }
+}
+// ---------------------------------
+
+
+// Módulo WiFi.
+// ---------------------------------
+#include "WifiConn.h"
+WifiConn wifiConn;
+// ---------------------------------
+
 
 // Telegram
+// ---------------------------------
 #include <UniversalTelegramBot.h>
-#include <env.h>
-
-UniversalTelegramBot bot(TOKEN_BOT, clienteWifi);
+UniversalTelegramBot bot(TOKEN_BOT, wifiConn.getCliente());
 unsigned long ultimaNotificacion = 0;
 const unsigned long intervaloNotificacion = 5000;
-
-boolean ventanaAbierta = false;
-boolean modoAutomatico = true;
-unsigned long tiempoEncendidoMotor = 0;
-float temp;
-unsigned long ultimaLecturaTemp = 0;
-const unsigned long intervaloLecturaTemp = 2000;
-const unsigned long duracionMotor = 10000;
-
 // Frecuencia de chequeo de mensajes de Telegram
 int delayBot = 1000;
 unsigned long ultimoChequeoBot;
+// ---------------------------------
+
+
+boolean modoAutomatico = true;
 
 void setup() {
   Serial.begin(115200);
-  dht.begin();
 
-  // Conectarse a wifi
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
-  clienteWifi.setCACert(TELEGRAM_CERTIFICATE_ROOT);
-  WiFi.setSleep(false);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
-    Serial.println("Connecting to WiFi..");
-  }
-  // Imprime la IP del ESP32
-  Serial.println(WiFi.localIP());
+  // Motor setup.
+  motor.init(MOTOR_DEFAULT_ESTADO, MOTOR_DURACION_MS);
 
-  pinMode(LEDPIN, OUTPUT);
-  digitalWrite(LEDPIN, LOW);
+  // Sensor Temp. setup.
+  tempSensor.init();
+
+  // WiFi setup.
+  wifiConn.getCliente().setCACert(TELEGRAM_CERTIFICATE_ROOT);
+  wifiConn.connect(WIFI_SSID, WIFI_PASSWORD);
 }
 
 void loop() {
-  if (millis() - ultimaLecturaTemp > intervaloLecturaTemp){
-    ultimaLecturaTemp = millis();
-    temp = dht.readTemperature();
-
-    if (isnan(temp)) {
-      Serial.println("Error leyendo la temperatura.");
-    } else {
-      Serial.print("Temperatura: ");
-      Serial.print(temp);
-      Serial.print(" °C - Ventana: ");
-      if (tiempoEncendidoMotor == 0) {
-        Serial.println(ventanaAbierta ? "Abierta" : "Cerrada");
-      } else {
-        Serial.println(ventanaAbierta ? "Abriendo..." : "Cerrando...");
-      }
-
-      if (tiempoEncendidoMotor == 0) {
-        if ((temp > 30.0) && (!ventanaAbierta)) {
-          Serial.println("Temperatura ALTA -> Abriendo ventana...");
-          abrirVentana();
-        } else if ((temp < 20.0) && (ventanaAbierta)) {
-          Serial.println("Temperatura BAJA -> Cerrando ventana...");
-          cerrarVentana();
-        }
-      }
-    }
-  }
-
-  if (tiempoEncendidoMotor > 0) {
-    unsigned long tiempoRestante = duracionMotor - (millis() - tiempoEncendidoMotor);
-    Serial.print("Motor activo, quedan ");
-    Serial.print(tiempoRestante / 1000);
-    Serial.println(" segundos.");
-    if (millis() - tiempoEncendidoMotor > duracionMotor) {
-      apagarMotor();
-    }
-  }
+  checkTemperatura();
+  printTemperatura();
+  printVentanas();
 
   if (millis() > ultimoChequeoBot + delayBot)  {
     int cantNuevosMensajes = bot.getUpdates(bot.last_message_received + 1);
@@ -111,20 +136,11 @@ void loop() {
     ultimaNotificacion = millis();
   }
 
+  motor.loopUpdate();
+
   delay(100);
 }
 
-void encenderMotor() {
-  Serial.println("Motor encendido.");
-  digitalWrite(LEDPIN, HIGH);
-  tiempoEncendidoMotor = millis();
-}
-
-void apagarMotor() {
-  digitalWrite(LEDPIN, LOW);
-  Serial.println("Motor apagado.");
-  tiempoEncendidoMotor = 0;
-}
 
 
 void recibirMensajes(int cantNuevosMensajes) {
@@ -178,26 +194,16 @@ void recibirMensajes(int cantNuevosMensajes) {
   }
 }
 
-void abrirVentana() {
-  encenderMotor();
-  ventanaAbierta = true;
-}
-
-void cerrarVentana() {
-  encenderMotor();
-  ventanaAbierta = true;
-}
-
 void comandoAbrirVentana(String chat_id) {
   comandoDesactivarModoAutomatico(chat_id);
-  abrirVentana();
+  abrirVentanas();
   bot.sendMessage(chat_id, "Abriendo ventana...", "");
   Serial.println("Abriendo ventana...");
 }
 
 void comandoCerrarVentana(String chat_id) {
   comandoDesactivarModoAutomatico(chat_id);
-  cerrarVentana();
+  cerrarVentanas();
   bot.sendMessage(chat_id, "Cerrando ventana...", "");
   Serial.println("Cerrando ventana...");
 }
@@ -215,8 +221,8 @@ void comandoDesactivarModoAutomatico(String chat_id) {
 }
 
 void informarEstado(String chat_id) {
-  String estado = "Temperatura: " + String(temp) + "\n";
-  String estadoVentana = ventanaAbierta ? "abiertas." : "cerradas.";
-  estado += ("Ventanas: " + estadoVentana);
+  String estado = "Temperatura: " + String(temperatura) + "\n";
+  String estadoVentanas = ventanasAbiertas ? "abiertas." : "cerradas.";
+  estado += ("Ventanas: " + estadoVentanas);
   bot.sendMessage(chat_id, estado, "");
 }
