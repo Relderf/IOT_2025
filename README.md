@@ -51,10 +51,14 @@ Entre las principales funcionalidades:
 IOT_2025/
 ├── sketch/
 │ ├── config.h
-│ ├── MotorDriver.cpp / .h
-│ ├── TempSensor.cpp / .h
-│ ├── TelegramBot.cpp / .h
-│ ├── WifiConn.cpp / .h
+│ ├── MotorDriver.cpp
+│ ├── MotorDriver.h
+│ ├── TempSensor.cpp
+│ ├── TempSensor.h
+│ ├── TelegramBot.cpp
+│ ├── TelegramBot.h
+│ ├── WifiConn.cpp
+│ ├── WifiConn.h
 │ └── sketch.ino
 ├── env.h
 ├── README.md
