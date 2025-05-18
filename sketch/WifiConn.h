@@ -6,11 +6,12 @@
 class WifiConn {
 private:
     WiFiClientSecure clienteWifi;
-    int attempts = 0;
-    const int maxAttempts = 15;
+    int attempts;
+    int maxAttempts;
+	unsigned long connectionDelayMs;
 
 public:
-    WifiConn();
+    WifiConn(int maxAttempts = 5, unsigned long connectionDelayMs = 1000);
     WiFiClientSecure& getCliente();
     void connect(String ssid, String password);
     bool isConnected();

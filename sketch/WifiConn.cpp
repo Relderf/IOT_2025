@@ -1,5 +1,4 @@
 #include "WifiConn.h"
-#include "env.h"
 #ifdef ESP32
 #include <WiFi.h>
 #else
@@ -7,7 +6,8 @@
 #endif
 #include <WiFiClientSecure.h>
 
-WifiConn::WifiConn() : clienteWifi() {
+WifiConn::WifiConn(int maxAttempts, unsigned long connectionDelayMs)
+    : clienteWifi(), attempts(0), maxAttempts(maxAttempts), connectionDelayMs(connectionDelayMs) {
 }
 
 WiFiClientSecure& WifiConn::getCliente() {
@@ -15,12 +15,13 @@ WiFiClientSecure& WifiConn::getCliente() {
 }
 
 void WifiConn::connect(String ssid, String password) {
+    attempts = 0;
     WiFi.mode(WIFI_STA);
     WiFi.begin(ssid, password);
     WiFi.setSleep(false);
-    while (WiFi.status() != WL_CONNECTED && attempts < maxAttempts) {
-        delay(WIFI_CONNECTION_TIMEOUT);
+    while ((WiFi.status() != WL_CONNECTED) && (attempts < maxAttempts)) {
         Serial.println("Conectando WiFi...");
+        delay(connectionDelayMs);
         attempts++;
     }
     if (WiFi.status() == WL_CONNECTED) {

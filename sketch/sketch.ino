@@ -82,7 +82,7 @@ void printTemperatura() {
 // Módulo WiFi.
 // ---------------------------------
 #include "WifiConn.h"
-WifiConn wifiConn;
+WifiConn wifiConn(WIFI_MAX_ATTEMPTS, WIFI_CONNECTION_TIMEOUT);
 // ---------------------------------
 
 
