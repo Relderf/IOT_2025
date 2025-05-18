@@ -1,9 +1,9 @@
 #include "TelegramBot.h"
 #include "WifiConn.h"
-extern WifiConn wifiConn;
 
 TelegramBot::TelegramBot(String telegramBotToken, WiFiClientSecure& clienteWifi,
-                         int intervalo) : bot(telegramBotToken, clienteWifi) {
+                         int intervalo, std::function<bool()> isWifiConnected)
+        : bot(telegramBotToken, clienteWifi), isWifiConnected(isWifiConnected) {
     clienteWifi.setCACert(TELEGRAM_CERTIFICATE_ROOT);
     ultimoChequeoMensajesMs = 0;
     intervaloChequeoMensajesMs = intervalo;
@@ -27,7 +27,7 @@ void TelegramBot::registerCommand(const String& command, std::function<void(Stri
 }
 
 void TelegramBot::sendMessage(String chatId, String message) {
-    if (!wifiConn.isConnected()) {
+    if (!isWifiConnected()) {
         Serial.println("No hay conexión WiFi. Cancelando envío.");
         return;
     }

@@ -91,7 +91,8 @@ WifiConn wifiConn(WIFI_MAX_ATTEMPTS, WIFI_CONNECTION_TIMEOUT);
 #include "TelegramBot.h"
 const unsigned long intervaloNotificacioBot = BOT_INTERVALO_NOTIFICACION;
 unsigned long ultimaNotificacionBot;
-TelegramBot telegramBot(TOKEN_BOT, wifiConn.getCliente(), BOT_INTERVALO_CHEQUEO_MENSAJES);
+TelegramBot telegramBot(TOKEN_BOT, wifiConn.getCliente(), BOT_INTERVALO_CHEQUEO_MENSAJES,
+                        [&wifiConn]() { return wifiConn.isConnected(); });
 
 void comandoAyuda(String chatId) {
   Serial.println("TelegramBot: Informando ayuda...");
