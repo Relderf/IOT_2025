@@ -156,11 +156,11 @@ void checkTelegramBot() {
 
 void setup() {
   Serial.begin(115200);
-  Serial.println("---------------------------");
-  Serial.println("SETUP: start");
-  Serial.println("---------------------------");
+  Serial.println("SETUP: start ---------------------------");
   motor.init(MOTOR_DEFAULT_ESTADO, MOTOR_DURACION_MS);
   tempSensor.init();
+  Serial.print("DEBUG conexión WiFi (esperado false): ");
+  Serial.println(wifiConn.isConnected() ? "true" : "false");
   wifiConn.connect(WIFI_SSID, WIFI_PASSWORD);
   ultimaNotificacionBot = 0;
   telegramBot.setChatIdsValidos({GROUP_CHAT_ID, CHAT_ID_1, CHAT_ID_2});
@@ -170,22 +170,16 @@ void setup() {
   telegramBot.registerCommand("/abrir", comandoAbrirVentana);
   telegramBot.registerCommand("/cerrar", comandoCerrarVentana);
   telegramBot.registerCommand("/estado", comandoInformarEstado);
-  Serial.println("---------------------------");
-  Serial.println("SETUP: end");
-  Serial.println("---------------------------");
+  Serial.println("SETUP: end ---------------------------");
 }
 
 void loop() {
-  Serial.println("---------------------------");
-  Serial.println("LOOP: start");
-  Serial.println("---------------------------");
+  Serial.println("LOOP: start ---------------------------");
   checkTemperatura();
   printTemperatura();
   printVentanas();
   checkMotor();
   checkTelegramBot();
   delay(LOOP_DELAY);
-  Serial.println("---------------------------");
-  Serial.println("LOOP: end");
-  Serial.println("---------------------------");
+  Serial.println("LOOP: END ---------------------------");
 }
