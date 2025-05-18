@@ -3,11 +3,10 @@
 
 #define DHTTYPE DHT22
 
-TempSensor::TempSensor(int p, unsigned long intervalo) : dht(p, DHTTYPE), mock(true) {
+TempSensor::TempSensor(int p, unsigned long intervalo, bool mockMode) : dht(p, DHTTYPE), mock(mockMode) {
     intervaloLecturaTempMs = intervalo;
     ultimaLecturaTempMs = 0;
     ultimaTemperatura = NAN;
-    bool mock = mock;
 }
 
 void TempSensor::init() {
@@ -21,7 +20,12 @@ bool TempSensor::temperaturaValida() {
 void TempSensor::checkTemperatura() {
     if ((millis() - ultimaLecturaTempMs) > intervaloLecturaTempMs) {
         ultimaLecturaTempMs = millis();
-        float temperatura = dht.readTemperature();
+ 		float temperatura;
+        if (mock) {
+            temperatura = random(18, 36);
+        } else {
+            temperatura = dht.readTemperature();
+        }
         if (!isnan(temperatura)) {
             ultimaTemperatura = temperatura;
         }
@@ -29,10 +33,6 @@ void TempSensor::checkTemperatura() {
 }
 
 float TempSensor::getTemperatura() {
-    if (mock) {
-        ultimaTemperatura = random(18, 36);
-    } else {
-        checkTemperatura();
-    }
+    checkTemperatura();
     return ultimaTemperatura;
 }

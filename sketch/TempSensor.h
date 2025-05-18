@@ -14,7 +14,7 @@ private:
     void checkTemperatura();
 
 public:
-    TempSensor(int pin, unsigned long intervaloLecturaTempMs);
+    TempSensor(int pin, unsigned long intervaloLecturaTempMs, bool mock = false);
     void init();
     float getTemperatura();
     bool temperaturaValida();

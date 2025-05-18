@@ -51,7 +51,7 @@ void printVentanas() {
 // Módulo Temperatura.
 // ---------------------------------
 #include "TempSensor.h"
-TempSensor tempSensor(TEMP_SENSOR_PIN, TEMP_SENSOR_DELAY);
+TempSensor tempSensor(TEMP_SENSOR_PIN, TEMP_SENSOR_DELAY, TEMP_MOCK);
 float ultimaTemperatura;
 bool modoAutomatico = VENTANAS_MODO_AUTOMATICO;
 
