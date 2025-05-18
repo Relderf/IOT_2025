@@ -147,7 +147,7 @@ void comandoInformarEstado(String chatId) {
 
 void checkTelegramBot() {
   telegramBot.checkMensajes();
-  if ((millis() - ultimaNotificacionBot) > intervaloNotificacioBot) {
+  if (modoAutomatico  && ((millis() - ultimaNotificacionBot) > intervaloNotificacioBot)) {
     comandoInformarEstado(GROUP_CHAT_ID);
     ultimaNotificacionBot = millis();
   }
