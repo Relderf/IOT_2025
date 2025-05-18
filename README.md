@@ -49,21 +49,22 @@ Entre las principales funcionalidades:
 ## Estructura del Proyecto
 
 IOT_2025/
+├── resources/
+│ ├── Telegram.png    # Captura del bot funcionando
+│ └── Terminal.png    # Captura de la consola del ESP32
 ├── sketch/
 │ ├── config.h
-│ ├── MotorDriver.cpp
-│ ├── MotorDriver.h
-│ ├── TempSensor.cpp
-│ ├── TempSensor.h
-│ ├── TelegramBot.cpp
-│ ├── TelegramBot.h
-│ ├── WifiConn.cpp
-│ ├── WifiConn.h
-│ └── sketch.ino
-├── env.h
-├── README.md
-├── wokwi-project.txt
-└── diagram.json
+│ ├── env.h     # Token, SSID y chat IDs
+│ ├── MotorDriver.cpp/h
+│ ├── TempSensor.cpp/h
+│ ├── TelegramBot.cpp/h
+│ ├── WifiConn.cpp/h
+│ └── sketch.ino    # Programa principal
+├── diagram.json    # Configuración de Wokwi (si se usa)
+├── libraries.txt     # Librerías utilizadas
+├── wokwi-project.txt     # Identificador del proyecto Wokwi
+├── .gitignore
+└── README.md     # Este archivo
 
 
 ---
