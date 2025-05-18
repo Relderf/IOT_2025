@@ -13,6 +13,21 @@ void checkMotor() {
 // ---------------------------------
 
 
+// Módulo WiFi.
+// ---------------------------------
+#include "WifiConn.h"
+WifiConn wifiConn(WIFI_MAX_ATTEMPTS, WIFI_CONNECTION_TIMEOUT);
+// ---------------------------------
+
+
+// Def. Bot Telegram.
+// ---------------------------------
+#include "TelegramBot.h"
+TelegramBot telegramBot(TOKEN_BOT, wifiConn.getCliente(), BOT_INTERVALO_CHEQUEO_MENSAJES,
+                        [&wifiConn]() { return wifiConn.isConnected(); });
+// ---------------------------------
+
+
 // Módulo Ventanas.
 // ---------------------------------
 boolean ventanasAbiertas = VENTANAS_DEFAULT_ESTADO;
@@ -21,19 +36,33 @@ bool ventanasEnUso() {
   return motor.estaEncendido();
 }
 
-void abrirVentanas() {
+void abrirVentanas(String chatId = "") {
   if (!ventanasEnUso() && !ventanasAbiertas) {
     Serial.println("Ventanas: abriendo...");
     motor.encender();
     ventanasAbiertas = true;
+    if (chatId != "") {
+      telegramBot.sendMessage(chatId, "Abriendo ventanas...");
+    }
+  } else {
+    if (chatId != "") {
+      telegramBot.sendMessage(chatId, "Ventanas ya abiertas o en uso.");
+    }
   }
 }
 
-void cerrarVentanas() {
+void cerrarVentanas(String chatId = "") {
   if (!ventanasEnUso() && ventanasAbiertas) {
     Serial.println("Ventanas: cerrando...");
     motor.encender();
     ventanasAbiertas = false;
+    if (chatId != "") {
+      telegramBot.sendMessage(chatId, "Cerrando ventanas...");
+    }
+  } else {
+    if (chatId != "") {
+      telegramBot.sendMessage(chatId, "Ventanas ya cerradas o en uso.");
+    }
   }
 }
 
@@ -64,9 +93,11 @@ void checkTemperatura(bool forzar = false) {
   if (forzar || (ultimaTemperatura != nuevaTemperatura)) {
     ultimaTemperatura = nuevaTemperatura;
     if (modoAutomatico && (ultimaTemperatura > TEMP_ALTA)) {
-      abrirVentanas();
+      telegramBot.sendMessage(GROUP_CHAT_ID, "Detectado Temp. ALTA: " + String(ultimaTemperatura) + " °C.");
+      abrirVentanas(GROUP_CHAT_ID);
     } else if (modoAutomatico && (ultimaTemperatura < TEMP_BAJA)) {
-      cerrarVentanas();
+      telegramBot.sendMessage(GROUP_CHAT_ID, "Detectado Temp. BAJA: " + String(ultimaTemperatura) + " °C.");
+      cerrarVentanas(GROUP_CHAT_ID);
     }
   }
 }
@@ -79,20 +110,10 @@ void printTemperatura() {
 // ---------------------------------
 
 
-// Módulo WiFi.
-// ---------------------------------
-#include "WifiConn.h"
-WifiConn wifiConn(WIFI_MAX_ATTEMPTS, WIFI_CONNECTION_TIMEOUT);
-// ---------------------------------
-
-
 // Módulo Bot Telegram.
 // ---------------------------------
-#include "TelegramBot.h"
 const unsigned long intervaloNotificacioBot = BOT_INTERVALO_NOTIFICACION;
 unsigned long ultimaNotificacionBot;
-TelegramBot telegramBot(TOKEN_BOT, wifiConn.getCliente(), BOT_INTERVALO_CHEQUEO_MENSAJES,
-                        [&wifiConn]() { return wifiConn.isConnected(); });
 
 void comandoAyuda(String chatId) {
   Serial.println("TelegramBot: Informando ayuda...");
@@ -121,15 +142,13 @@ void comandoDesactivarModoAutomatico(String chatId) {
 void comandoAbrirVentana(String chatId) {
   Serial.println("TelegramBot: Abriendo ventana...");
   comandoDesactivarModoAutomatico(chatId);
-  telegramBot.sendMessage(chatId, "Abriendo ventanas...");
-  abrirVentanas();
+  abrirVentanas(chatId);
 }
 
 void comandoCerrarVentana(String chatId) {
   Serial.println("TelegramBot: Cerrando ventana...");
   comandoDesactivarModoAutomatico(chatId);
-  telegramBot.sendMessage(chatId, "Cerrando ventanas...");
-  cerrarVentanas();
+  cerrarVentanas(chatId);
 }
 
 void comandoInformarEstado(String chatId) {
