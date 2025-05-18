@@ -8,6 +8,7 @@ private:
     float ultimaTemperatura;
     unsigned long ultimaLecturaTempMs;
     unsigned long intervaloLecturaTempMs;
+    bool mock;
     DHT dht;
 
     void checkTemperatura();
