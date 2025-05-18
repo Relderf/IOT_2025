@@ -3,7 +3,7 @@
 ## Integrantes
 
 - **Ignacio Traberg** - Legajo: 18244/3  
-- **Martín Tau** - Legajo: *(completar)*
+- **Martín Tau** - Legajo: 7881/8
 
 ---
 
