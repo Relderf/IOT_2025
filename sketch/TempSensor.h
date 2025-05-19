@@ -8,13 +8,12 @@ private:
     float ultimaTemperatura;
     unsigned long ultimaLecturaTempMs;
     unsigned long intervaloLecturaTempMs;
-    bool mock;
     DHT dht;
 
     void checkTemperatura();
 
 public:
-    TempSensor(int pin, unsigned long intervaloLecturaTempMs, bool mock = false);
+    TempSensor(int pin, unsigned long intervaloLecturaTempMs);
     void init();
     float getTemperatura();
     bool temperaturaValida();

@@ -44,23 +44,17 @@ void abrirVentanas(String chatId = "") {
     if (chatId != "") {
       telegramBot.sendMessage(chatId, "Abriendo ventanas...");
     }
-  } else {
-    if (chatId != "") {
-      telegramBot.sendMessage(chatId, "Ventanas ya abiertas o en uso.");
-    }
   }
 }
 
 void cerrarVentanas(String chatId = "") {
-  if (!ventanasEnUso() && ventanasAbiertas) {
-    Serial.println("Ventanas: cerrando...");
-    motor.encender();
-    ventanasAbiertas = false;
-    if (chatId != "") {
+  if (chatId != "") {
+    if (!ventanasEnUso() && ventanasAbiertas) {
+      Serial.println("Ventanas: cerrando...");
+      motor.encender();
+      ventanasAbiertas = false;
       telegramBot.sendMessage(chatId, "Cerrando ventanas...");
-    }
-  } else {
-    if (chatId != "") {
+    } else {
       telegramBot.sendMessage(chatId, "Ventanas ya cerradas o en uso.");
     }
   }
@@ -80,7 +74,7 @@ void printVentanas() {
 // Módulo Temperatura.
 // ---------------------------------
 #include "TempSensor.h"
-TempSensor tempSensor(TEMP_SENSOR_PIN, TEMP_SENSOR_DELAY, TEMP_MOCK);
+TempSensor tempSensor(TEMP_SENSOR_PIN, TEMP_SENSOR_DELAY);
 float ultimaTemperatura;
 bool modoAutomatico = VENTANAS_MODO_AUTOMATICO;
 
@@ -92,12 +86,14 @@ void checkTemperatura(bool forzar = false) {
   }
   if (forzar || (ultimaTemperatura != nuevaTemperatura)) {
     ultimaTemperatura = nuevaTemperatura;
-    if (modoAutomatico && (ultimaTemperatura > TEMP_ALTA)) {
-      telegramBot.sendMessage(GROUP_CHAT_ID, "Detectado Temp. ALTA: " + String(ultimaTemperatura) + " °C.");
-      abrirVentanas(GROUP_CHAT_ID);
-    } else if (modoAutomatico && (ultimaTemperatura < TEMP_BAJA)) {
-      telegramBot.sendMessage(GROUP_CHAT_ID, "Detectado Temp. BAJA: " + String(ultimaTemperatura) + " °C.");
-      cerrarVentanas(GROUP_CHAT_ID);
+    if (!ventanasEnUso && modoAutomatico) {
+      if (ultimaTemperatura > TEMP_ALTA) {
+        telegramBot.sendMessage(GROUP_CHAT_ID, "Detectado Temp. ALTA: " + String(ultimaTemperatura) + " °C.");
+        abrirVentanas(GROUP_CHAT_ID);
+      } else if (ultimaTemperatura < TEMP_BAJA) {
+        telegramBot.sendMessage(GROUP_CHAT_ID, "Detectado Temp. BAJA: " + String(ultimaTemperatura) + " °C.");
+        cerrarVentanas(GROUP_CHAT_ID);
+      }
     }
   }
 }
@@ -134,9 +130,15 @@ void comandoActivarModoAutomatico(String chatId) {
 }
 
 void comandoDesactivarModoAutomatico(String chatId) {
-  Serial.println("TelegramBot: Desctivando modo automático...");
-  telegramBot.sendMessage(chatId, "Modo automático: DESACTIVADO.");
-  modoAutomatico = false;
+  String msj_terminal;
+  if (modoAutomatico) {
+    modoAutomatico = false;
+    msj_terminal = "TelegramBot: Desctivando modo automático...";
+    telegramBot.sendMessage(chatId, "Modo automático: DESACTIVADO.");
+  } else {
+    msj_terminal = "TelegramBot: El modo automático ya se encuentra desactivado.";
+  }
+  Serial.println(msj_terminal);
 }
 
 void comandoAbrirVentana(String chatId) {
@@ -154,6 +156,7 @@ void comandoCerrarVentana(String chatId) {
 void comandoInformarEstado(String chatId) {
   Serial.println("TelegramBot: Informando estado...");
   String estado = "Temperatura: " + String(ultimaTemperatura) + " °C.\n";
+  estado += "Modo automatico: " + String((modoAutomatico ? "Activado" : "Desactivado")) + ".\n";
   String estadoVentanas;
   if (ventanasEnUso()) {
     estadoVentanas = (ventanasAbiertas ? "Abriendo..." : "Cerrando...");
@@ -201,5 +204,5 @@ void loop() {
   checkMotor();
   checkTelegramBot();
   delay(LOOP_DELAY);
-  Serial.println("LOOP: END ---------------------------");
+  Serial.println("LOOP: end ---------------------------");
 }
