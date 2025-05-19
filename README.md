@@ -41,7 +41,9 @@ Entre las principales funcionalidades:
 
 ### · Interacción del bot en el grupo de Telegram
 
-![Captura del bot en el grupo](resources/Telegram.png)
+![Captura del bot en el grupo](resources/Telegram_1.png)
+
+![Captura del bot en el grupo](resources/Telegram_2.png)
 
 ### · Ejecución en consola del Arduino IDE
 
