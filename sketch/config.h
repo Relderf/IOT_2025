@@ -5,8 +5,6 @@
 #define VENTANAS_DEFAULT_ESTADO false     // Estado inicial de las ventanas. TRUE = abiertas; FALSE = cerradas.
 #define VENTANAS_MODO_AUTOMATICO false    // Estado inicial del modo automático. TRUE = activado; FALSE = desactivado.
 
-#define TEMP_MOCK false    // FALSE, para usar un sensor de temp.; TRUE, para generar temp. aleatorias simuladas.
-
 #define TEMP_SENSOR_PIN 15        // Pin de conexión del sensor de temperatura.
 #define TEMP_ALTA 30.0            // Temperatura sobre la cual se abrirán las ventanas en el modo automático.
 #define TEMP_BAJA 20.0            // Ídem TEMP_ALTA, pero para cerrar las ventanas.
