@@ -106,6 +106,20 @@ void printTemperatura() {
 // ---------------------------------
 
 
+// Módulo Humedad.
+// ---------------------------------
+float ultimaHumedad = 0;
+
+void checkHumedad() {
+  ultimaHumedad = random (30,95);
+}
+
+void printHumedad() {
+  Serial.println("Humedad: " + String(ultimaHumedad) + "%.");
+}
+// ---------------------------------
+
+
 // Módulo Bot Telegram.
 // ---------------------------------
 const unsigned long intervaloNotificacioBot = BOT_INTERVALO_NOTIFICACION;
@@ -177,6 +191,34 @@ void checkTelegramBot() {
 // ---------------------------------
 
 
+// Módulo MQTT.
+// ---------------------------------
+#include "MqttClient.h"
+MqttClient mqttClient(wifiConn.getClienteInseguro());
+const unsigned long intervaloPushMqtt = MQTT_INTERVALO_PUSH;
+unsigned long ultimoPushMqtt;
+
+void checkMqttConnection() {
+  if (!mqttClient.isConnected()) {
+    mqttClient.connect(MQTT_CLIENT_NAME, MQTT_CONN_DELAY);
+  }
+  mqttClient.loop();
+}
+
+void publicarTopicosMqtt() {
+  if ((millis() - ultimoPushMqtt) > intervaloPushMqtt) {
+    char tempString[8];
+    dtostrf(ultimaTemperatura, 1, 2, tempString);
+    mqttClient.publish("esp32/temperatura", tempString);
+    char humString[8];
+    dtostrf(ultimaHumedad, 1, 2, humString);
+    mqttClient.publish("esp32/humedad", humString);
+    ultimoPushMqtt = millis();
+  }
+}
+// ---------------------------------
+
+
 void setup() {
   Serial.begin(115200);
   Serial.println("SETUP: start ---------------------------");
@@ -193,16 +235,21 @@ void setup() {
   telegramBot.registerCommand("/abrir", comandoAbrirVentana);
   telegramBot.registerCommand("/cerrar", comandoCerrarVentana);
   telegramBot.registerCommand("/estado", comandoInformarEstado);
+  mqttClient.init(MQTT_BROKER_ADRESS, MQTT_PORT);
   Serial.println("SETUP: end ---------------------------");
 }
 
 void loop() {
   Serial.println("LOOP: start ---------------------------");
+  checkMqttConnection();
   checkTemperatura();
+  checkHumedad();
   printTemperatura();
+  printHumedad();
   printVentanas();
   checkMotor();
   checkTelegramBot();
+  publicarTopicosMqtt();
   delay(LOOP_DELAY);
   Serial.println("LOOP: end ---------------------------");
 }
