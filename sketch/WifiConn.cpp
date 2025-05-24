@@ -7,11 +7,15 @@
 #include <WiFiClientSecure.h>
 
 WifiConn::WifiConn(int maxAttempts, unsigned long connectionDelayMs)
-    : clienteWifi(), attempts(0), maxAttempts(maxAttempts), connectionDelayMs(connectionDelayMs) {
+    : clienteWifi(), clienteWifiInseguro(), attempts(0), maxAttempts(maxAttempts), connectionDelayMs(connectionDelayMs) {
 }
 
 WiFiClientSecure& WifiConn::getCliente() {
-     return clienteWifi;
+    return clienteWifi;
+}
+
+WiFiClient& WifiConn::getClienteInseguro() {
+    return clienteWifiInseguro;
 }
 
 void WifiConn::connect(String ssid, String password) {
