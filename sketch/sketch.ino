@@ -110,8 +110,37 @@ void printTemperatura() {
 // ---------------------------------
 float ultimaHumedad = 0;
 
+float simularHumedad() {
+    // La primera vez que se llama a esta función, se simula una humedad 
+    //aleatoria entre 30 y 95 por ciento. Despues de eso, crece hacia
+    //el extremo que tenga más lejos (30 o 95) de a 1 cada 5 segundos, 
+    //y cuando llega al límite, vuelve para el otro lado.
+    static float humedadSimulada = 0;
+    static unsigned long ultimaLecturaSimuladaMs = 0;
+    static bool creciendo = true;
+    if ((millis() - ultimaLecturaSimuladaMs) > 5000) {
+        ultimaLecturaSimuladaMs = millis();
+        if (humedadSimulada == 0) {
+            humedadSimulada = random(30, 95);
+        } else {
+            if (creciendo) {
+                humedadSimulada += 1;
+                if (humedadSimulada >= 35) {
+                    creciendo = false;
+                }
+            } else {
+                humedadSimulada -= 1;
+                if (humedadSimulada <= 10) {
+                    creciendo = true;
+                }
+            }
+        }
+    }
+    return humedadSimulada;
+}
+
 void checkHumedad() {
-  ultimaHumedad = random (30,95);
+  ultimaHumedad = simularHumedad;
 }
 
 void printHumedad() {
