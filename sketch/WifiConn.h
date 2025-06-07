@@ -13,7 +13,7 @@ private:
 	unsigned long connectionDelayMs;
 
 public:
-    WifiConn(int maxAttempts = 5, unsigned long connectionDelayMs = 1000);
+    WifiConn(int maxAttempts = 10, unsigned long connectionDelayMs = 20000);
     WiFiClientSecure& getCliente();
     WiFiClient& getClienteInseguro();
     void connect(String ssid, String password);
