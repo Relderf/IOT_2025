@@ -45,8 +45,7 @@ void MqttClient::connect(const char* clientName, int connDelay) {
       Serial.print("MQTT connection...");
       if (pubSubClient.connect(clientName)) {
         Serial.println(" connected");
-        //pubSubClient.subscribe("esp32/temperatura");
-        //pubSubClient.subscribe("esp32/humedad");
+        pubSubClient.subscribe("esp32/ventanas");
       } else {
         Serial.print("failed, rc=");
         Serial.print(pubSubClient.state());

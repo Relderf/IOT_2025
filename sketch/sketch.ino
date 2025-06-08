@@ -140,7 +140,7 @@ float simularHumedad() {
 }
 
 void checkHumedad() {
-  ultimaHumedad = simularHumedad;
+  ultimaHumedad = simularHumedad();
 }
 
 void printHumedad() {
@@ -236,12 +236,9 @@ void checkMqttConnection() {
 
 void publicarTopicosMqtt() {
   if ((millis() - ultimoPushMqtt) > intervaloPushMqtt) {
-    char tempString[8];
-    dtostrf(ultimaTemperatura, 1, 2, tempString);
-    mqttClient.publish("esp32/temperatura", tempString);
-    char humString[8];
-    dtostrf(ultimaHumedad, 1, 2, humString);
-    mqttClient.publish("esp32/humedad", humString);
+    char mensajeMqtt[MSG_MAX_LENGTH];
+    snprintf(mensajeMqtt, MSG_MAX_LENGTH, "{\"temperatura\":%.2f,\"humedad\":%.2f}", ultimaTemperatura, ultimaHumedad);
+    mqttClient.publish("sensores", mensajeMqtt);
     ultimoPushMqtt = millis();
   }
 }

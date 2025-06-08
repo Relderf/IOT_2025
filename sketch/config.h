@@ -20,3 +20,5 @@
 #define MQTT_CONN_DELAY 5000        // =5s. Intervalo de espera entre intentos de conexión a broker MQTT.
 
 #define LOOP_DELAY 3000    // =3s. Intervalo de espera de loop principal de ejecución.
+
+#define MSG_MAX_LENGTH 64    // Longitud máxima de los mensajes que se envían por MQTT.
