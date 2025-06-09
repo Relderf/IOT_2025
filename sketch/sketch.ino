@@ -238,8 +238,22 @@ void publicarTopicosMqtt() {
   if ((millis() - ultimoPushMqtt) > intervaloPushMqtt) {
     char mensajeMqtt[MSG_MAX_LENGTH];
     snprintf(mensajeMqtt, MSG_MAX_LENGTH, "{\"temperatura\":%.2f,\"humedad\":%.2f}", ultimaTemperatura, ultimaHumedad);
-    mqttClient.publish("sensores", mensajeMqtt);
+    mqttClient.publish("esp32/sensores", mensajeMqtt);
     ultimoPushMqtt = millis();
+  }
+}
+
+mqttClient.setCallback(callback);  // Esto se hace una vez en setup()
+
+void callback(char* topic, byte* payload, unsigned int length) {
+  String comando((char*)payload, length);
+
+  if (String(topic) == "esp32/ventanas") {
+    if (comando == "abrir") {
+      abrirVentanas();
+    } else if (comando == "cerrar") {
+      cerrarVentanas();
+    }
   }
 }
 // ---------------------------------
