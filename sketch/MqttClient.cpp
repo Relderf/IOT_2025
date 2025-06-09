@@ -1,27 +1,13 @@
 #include "MqttClient.h"
+#include "MotorDriver.h"
+#include "config.h"
 
 MqttClient::MqttClient(WiFiClient& clienteWifi)
         : pubSubClient(clienteWifi) {
 }
 
-void callback(char* topic, byte* payload, unsigned int length) {
-    Serial.print("Message arrived on topic: ");
-    Serial.print(topic);
-    Serial.print(". Message: ");
-    String comando((char*)payload, length);
-    
-    if (String(topic) == "esp32/ventanas") {
-        if (comando == "abrir") {
-            abrirVentanas();
-        } else if (comando == "cerrar") {
-            cerrarVentanas();
-        }
-    }
-}
-
 void MqttClient::init(const char* mqttAddress, uint16_t mqttPort) {
     pubSubClient.setServer(mqttAddress, mqttPort);
-    mqttClient.setCallback(callback);  // Esto se hace una vez en setup()
 }
 
 bool MqttClient::isConnected() {
@@ -47,7 +33,21 @@ void MqttClient::loop() {
     pubSubClient.loop();
 }
 
-
 void MqttClient::publish(const char* topic, const char* payload) {
     pubSubClient.publish(topic, payload);
+}
+
+void MqttClient::callback(char* topic, byte* payload, unsigned int length) {
+    Serial.print("Message arrived on topic: ");
+    Serial.print(topic);
+    Serial.print(". Message: ");
+    String comando((char*)payload, length);
+    
+    if (String(topic) == "esp32/ventanas") {
+        if (comando == "abrir") {
+            motor.abrirVentanas();
+        } else if (comando == "cerrar") {
+            motor.cerrarVentanas();
+        }
+    }
 }

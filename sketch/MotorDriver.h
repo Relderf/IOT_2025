@@ -2,6 +2,7 @@
 #define MOTORDRIVER_H
 
 #include <Arduino.h>
+#include "config.h"
 
 class MotorDriver {
 private:
@@ -9,6 +10,7 @@ private:
     bool encendido;
     int duracionEncendidoMs;
     unsigned long tiempoInicioEncendidoMs;
+    bool ventanasAbiertas;
 
 public:
     MotorDriver(int pin);
@@ -17,6 +19,12 @@ public:
     void apagar();
     bool estaEncendido();
     void loopUpdate();
+    void abrirVentanas();
+    void cerrarVentanas();
+    bool puedeAbrirVentanas();
+    bool getEstadoVentanas();
 };
+
+extern MotorDriver motor;
 
 #endif //MOTORDRIVER_H

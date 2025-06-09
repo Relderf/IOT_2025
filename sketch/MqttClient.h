@@ -15,6 +15,7 @@ public:
     void connect(const char* clientName, int connDelay);
     void loop();
     void publish(const char* topic, const char* payload);
+    void callback(char* topic, byte* payload, unsigned int length);
 };
 
 #endif //MQTTCLIENT_H

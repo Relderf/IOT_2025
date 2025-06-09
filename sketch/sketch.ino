@@ -5,8 +5,6 @@
 // Módulo Motor.
 // ---------------------------------
 #include "MotorDriver.h"
-MotorDriver motor(MOTOR_PIN);
-
 void checkMotor() {
   motor.loopUpdate();
 }
@@ -30,42 +28,17 @@ TelegramBot telegramBot(TOKEN_BOT, wifiConn.getCliente(), BOT_INTERVALO_CHEQUEO_
 
 // Módulo Ventanas.
 // ---------------------------------
-boolean ventanasAbiertas = VENTANAS_DEFAULT_ESTADO;
-
 bool ventanasEnUso() {
   return motor.estaEncendido();
 }
 
-void abrirVentanas(String chatId = "") {
-  if (!ventanasEnUso() && !ventanasAbiertas) {
-    Serial.println("Ventanas: abriendo...");
-    motor.encender();
-    ventanasAbiertas = true;
-    if (chatId != "") {
-      telegramBot.sendMessage(chatId, "Abriendo ventanas...");
-    }
-  }
-}
-
-void cerrarVentanas(String chatId = "") {
-  if (chatId != "") {
-    if (!ventanasEnUso() && ventanasAbiertas) {
-      Serial.println("Ventanas: cerrando...");
-      motor.encender();
-      ventanasAbiertas = false;
-      telegramBot.sendMessage(chatId, "Cerrando ventanas...");
-    } else {
-      telegramBot.sendMessage(chatId, "Ventanas ya cerradas o en uso.");
-    }
-  }
-}
 
 void printVentanas() {
   Serial.print("Ventanas: ");
   if (ventanasEnUso()) {
-    Serial.println(ventanasAbiertas ? "Abriendo..." : "Cerrando...");
+    Serial.println(motor.getEstadoVentanas() ? "Abriendo..." : "Cerrando...");
   } else {
-    Serial.println(ventanasAbiertas ? "Abiertas." : "Cerradas.");
+    Serial.println(motor.getEstadoVentanas() ? "Abiertas." : "Cerradas.");
   }
 }
 // ---------------------------------
@@ -76,25 +49,12 @@ void printVentanas() {
 #include "TempSensor.h"
 TempSensor tempSensor(TEMP_SENSOR_PIN, TEMP_SENSOR_DELAY);
 float ultimaTemperatura;
-bool modoAutomatico = VENTANAS_MODO_AUTOMATICO;
 
-void checkTemperatura(bool forzar = false) {
+void checkTemperatura() {
   float nuevaTemperatura = tempSensor.getTemperatura();
   if (!tempSensor.temperaturaValida()) {
     Serial.println("Error al obtener la temperatura.");
     return;
-  }
-  if (forzar || (ultimaTemperatura != nuevaTemperatura)) {
-    ultimaTemperatura = nuevaTemperatura;
-    if (!ventanasEnUso && modoAutomatico) {
-      if (ultimaTemperatura > TEMP_ALTA) {
-        telegramBot.sendMessage(GROUP_CHAT_ID, "Detectado Temp. ALTA: " + String(ultimaTemperatura) + " °C.");
-        abrirVentanas(GROUP_CHAT_ID);
-      } else if (ultimaTemperatura < TEMP_BAJA) {
-        telegramBot.sendMessage(GROUP_CHAT_ID, "Detectado Temp. BAJA: " + String(ultimaTemperatura) + " °C.");
-        cerrarVentanas(GROUP_CHAT_ID);
-      }
-    }
   }
 }
 
@@ -165,54 +125,54 @@ void comandoAyuda(String chatId) {
   telegramBot.sendMessage(chatId, welcome);
 }
 
-void comandoActivarModoAutomatico(String chatId) {
-  Serial.println("TelegramBot: Activando modo automático...");
-  telegramBot.sendMessage(chatId, "Modo automático: ACTIVADO.");
-  modoAutomatico = true;
-  checkTemperatura(true);
+void abrirVentanas(String chatId = "") {
+  if (motor.puedeAbrirVentanas()) {
+    Serial.println("Ventanas: abriendo...");
+    motor.abrirVentanas();
+    if (chatId != "") {
+      telegramBot.sendMessage(chatId, "Abriendo ventanas...");
+    }
+  }
 }
 
-void comandoDesactivarModoAutomatico(String chatId) {
-  String msj_terminal;
-  if (modoAutomatico) {
-    modoAutomatico = false;
-    msj_terminal = "TelegramBot: Desctivando modo automático...";
-    telegramBot.sendMessage(chatId, "Modo automático: DESACTIVADO.");
+void cerrarVentanas(String chatId = "") {
+  if (motor.puedeAbrirVentanas()) {
+    Serial.println("Ventanas: cerrando...");
+    motor.cerrarVentanas();
+    if (chatId != "") {
+      telegramBot.sendMessage(chatId, "Cerrando ventanas...");
+    }
   } else {
-    msj_terminal = "TelegramBot: El modo automático ya se encuentra desactivado.";
+    telegramBot.sendMessage(chatId, "Ventanas ya cerradas o en uso.");
   }
-  Serial.println(msj_terminal);
 }
 
 void comandoAbrirVentana(String chatId) {
   Serial.println("TelegramBot: Abriendo ventana...");
-  comandoDesactivarModoAutomatico(chatId);
   abrirVentanas(chatId);
 }
 
 void comandoCerrarVentana(String chatId) {
   Serial.println("TelegramBot: Cerrando ventana...");
-  comandoDesactivarModoAutomatico(chatId);
   cerrarVentanas(chatId);
 }
 
 void comandoInformarEstado(String chatId) {
   Serial.println("TelegramBot: Informando estado...");
   String estado = "Temperatura: " + String(ultimaTemperatura) + " °C.\n";
-  estado += "Modo automatico: " + String((modoAutomatico ? "Activado" : "Desactivado")) + ".\n";
-  String estadoVentanas;
+  String estadoVentanasMsj;
   if (ventanasEnUso()) {
-    estadoVentanas = (ventanasAbiertas ? "Abriendo..." : "Cerrando...");
+    estadoVentanasMsj = (motor.getEstadoVentanas() ? "Abriendo..." : "Cerrando...");
   } else {
-    estadoVentanas = (ventanasAbiertas ? "Abiertas." : "Cerradas.");
+    estadoVentanasMsj = (motor.getEstadoVentanas() ? "Abiertas." : "Cerradas.");
   }
-  estado += ("Ventanas: " + estadoVentanas);
+  estado += ("Ventanas: " + estadoVentanasMsj);
   telegramBot.sendMessage(chatId, estado);
 }
 
 void checkTelegramBot() {
   telegramBot.checkMensajes();
-  if (modoAutomatico  && ((millis() - ultimaNotificacionBot) > intervaloNotificacioBot)) {
+  if ((millis() - ultimaNotificacionBot) > intervaloNotificacioBot) {
     comandoInformarEstado(GROUP_CHAT_ID);
     ultimaNotificacionBot = millis();
   }
@@ -242,20 +202,6 @@ void publicarTopicosMqtt() {
     ultimoPushMqtt = millis();
   }
 }
-
-mqttClient.setCallback(callback);  // Esto se hace una vez en setup()
-
-void callback(char* topic, byte* payload, unsigned int length) {
-  String comando((char*)payload, length);
-
-  if (String(topic) == "esp32/ventanas") {
-    if (comando == "abrir") {
-      abrirVentanas();
-    } else if (comando == "cerrar") {
-      cerrarVentanas();
-    }
-  }
-}
 // ---------------------------------
 
 
@@ -270,8 +216,6 @@ void setup() {
   ultimaNotificacionBot = 0;
   telegramBot.setChatIdsValidos({GROUP_CHAT_ID, CHAT_ID_1, CHAT_ID_2});
   telegramBot.registerCommand("/ayuda", comandoAyuda);
-  telegramBot.registerCommand("/activar", comandoActivarModoAutomatico);
-  telegramBot.registerCommand("/desactivar", comandoDesactivarModoAutomatico);
   telegramBot.registerCommand("/abrir", comandoAbrirVentana);
   telegramBot.registerCommand("/cerrar", comandoCerrarVentana);
   telegramBot.registerCommand("/estado", comandoInformarEstado);

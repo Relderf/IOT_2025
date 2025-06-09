@@ -1,5 +1,8 @@
 #include "MotorDriver.h"
+#include "config.h"
 #include <Arduino.h>
+
+MotorDriver motor(MOTOR_PIN);
 
 MotorDriver::MotorDriver(int p) {
     pin = p;
@@ -11,14 +14,15 @@ void MotorDriver::init(bool estado, int duracion) {
     duracionEncendidoMs = duracion;
     Serial.print(duracionEncendidoMs);
     tiempoInicioEncendidoMs = 0;
+    ventanasAbiertas = VENTANAS_DEFAULT_ESTADO;
     encendido = !estado;
     Serial.print("ms. Estado: ");
     Serial.print(estado ? "Encendido" : "Apagado");
     Serial.println(".");
     if (estado) {
-      encender();
+        encender();
     } else {
-      apagar();
+        apagar();
     }
 }
 
@@ -59,4 +63,26 @@ void MotorDriver::loopUpdate() {
             apagar();
         }
     }
+}
+
+void MotorDriver::abrirVentanas() {
+  if (!estaEncendido() && !getEstadoVentanas()) {
+    encender();
+    ventanasAbiertas = true;
+  }
+}
+
+void MotorDriver::cerrarVentanas() {
+  if (!estaEncendido() && getEstadoVentanas()) {
+    encender();
+    ventanasAbiertas = false;
+  }
+}
+
+bool MotorDriver::puedeAbrirVentanas() {
+    return !estaEncendido() && !ventanasAbiertas;
+}
+
+bool MotorDriver::getEstadoVentanas() {
+  return ventanasAbiertas;
 }
