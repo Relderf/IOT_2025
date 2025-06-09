@@ -1,0 +1,164 @@
+[
+    {
+        "id": "630ff27b3317931f",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "mqtt-in",
+        "type": "mqtt in",
+        "z": "630ff27b3317931f",
+        "name": "Recibir datos",
+        "topic": "esp32/sensores",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "9228fce8f2bf299a",
+        "nl": false,
+        "rap": false,
+        "inputs": 0,
+        "x": 250,
+        "y": 220,
+        "wires": [
+            [
+                "110d6187c12cc7fb",
+                "a1cd2cc321c3cb11"
+            ]
+        ]
+    },
+    {
+        "id": "a1cd2cc321c3cb11",
+        "type": "debug",
+        "z": "630ff27b3317931f",
+        "name": "Debug",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 710,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "3b5973401896c282",
+        "type": "inject",
+        "z": "630ff27b3317931f",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "sensores",
+        "payload": "",
+        "payloadType": "date",
+        "x": 250,
+        "y": 120,
+        "wires": [
+            [
+                "110d6187c12cc7fb"
+            ]
+        ]
+    },
+    {
+        "id": "110d6187c12cc7fb",
+        "type": "function",
+        "z": "630ff27b3317931f",
+        "name": "JSON",
+        "func": "msg.topic = \"esp32/sensores\";\n\nif (typeof msg.payload === \"string\") {\n    try {\n        msg.payload = JSON.parse(msg.payload);\n    } catch (e) {\n        node.warn(\"Error al parsear JSON: \" + e.message);\n        return null;\n    }\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 470,
+        "y": 180,
+        "wires": [
+            [
+                "a1cd2cc321c3cb11"
+            ]
+        ]
+    },
+    {
+        "id": "4e6c69bdd8db9718",
+        "type": "mqtt out",
+        "z": "630ff27b3317931f",
+        "name": "Enviar orden",
+        "topic": "esp32/ventanas",
+        "qos": "0",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "9228fce8f2bf299a",
+        "x": 750,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "3e69fd046821caf3",
+        "type": "function",
+        "z": "630ff27b3317931f",
+        "name": "Motor manager",
+        "func": "\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 480,
+        "y": 300,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "9228fce8f2bf299a",
+        "type": "mqtt-broker",
+        "name": "Broker MQTT Contenedor",
+        "broker": "192.168.0.160",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    }
+]
