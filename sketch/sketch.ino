@@ -51,9 +51,10 @@ TempSensor tempSensor(TEMP_SENSOR_PIN, TEMP_SENSOR_DELAY);
 float ultimaTemperatura;
 
 void checkTemperatura() {
-  float nuevaTemperatura = tempSensor.getTemperatura();
+  ultimaTemperatura = tempSensor.getTemperatura();
   if (!tempSensor.temperaturaValida()) {
     Serial.println("Error al obtener la temperatura.");
+    ultimaTemperatura = -1;
     return;
   }
 }
@@ -194,11 +195,18 @@ void checkMqttConnection() {
   mqttClient.loop();
 }
 
+static float ultimaTempEnviada = -1000;
+static float ultimaHumEnviada = -1000;
+
 void publicarTopicosMqtt() {
   if ((millis() - ultimoPushMqtt) > intervaloPushMqtt) {
-    char mensajeMqtt[MSG_MAX_LENGTH];
-    snprintf(mensajeMqtt, MSG_MAX_LENGTH, "{\"temperatura\":%.2f,\"humedad\":%.2f}", ultimaTemperatura, ultimaHumedad);
-    mqttClient.publish("esp32/sensores", mensajeMqtt);
+    if (ultimaTemperatura != ultimaTempEnviada || ultimaHumedad != ultimaHumEnviada) {
+      char mensajeMqtt[MSG_MAX_LENGTH];
+      snprintf(mensajeMqtt, MSG_MAX_LENGTH, "{\"temperatura\":%.2f,\"humedad\":%.2f}", ultimaTemperatura, ultimaHumedad);
+      mqttClient.publish("esp32/sensores", mensajeMqtt);
+      ultimaTempEnviada = ultimaTemperatura;
+      ultimaHumEnviada = ultimaHumedad;
+    }
     ultimoPushMqtt = millis();
   }
 }
