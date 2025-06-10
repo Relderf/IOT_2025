@@ -2,7 +2,7 @@
     {
         "id": "630ff27b3317931f",
         "type": "tab",
-        "label": "Flow 1",
+        "label": "TP2",
         "disabled": false,
         "info": "",
         "env": []
@@ -148,9 +148,58 @@
         "retentionPolicyV18Flux": "",
         "org": "organisation",
         "bucket": "bucket",
-        "x": 790,
+        "x": 570,
         "y": 140,
         "wires": []
+    },
+    {
+        "id": "a2fd56ebf4f21933",
+        "type": "inject",
+        "z": "630ff27b3317931f",
+        "name": "Crear DB telegraf",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "5",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "str",
+        "x": 470,
+        "y": 60,
+        "wires": [
+            [
+                "eb46d92cfe98a5e3"
+            ]
+        ]
+    },
+    {
+        "id": "eb46d92cfe98a5e3",
+        "type": "http request",
+        "z": "630ff27b3317931f",
+        "name": "",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "http://TrabergTau:TauTraberg@influxdb:8086/query?q=CREATE DATABASE telegraf",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 770,
+        "y": 60,
+        "wires": [
+            [
+                "a1cd2cc321c3cb11"
+            ]
+        ]
     },
     {
         "id": "9228fce8f2bf299a",
