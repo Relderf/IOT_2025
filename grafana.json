@@ -195,6 +195,8 @@
             }
           },
           "mappings": [],
+          "max": 100,
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -508,5 +510,5 @@
   "timezone": "browser",
   "title": "Panel de Sensores",
   "uid": "3e262e38-063c-4e01-a561-64dedd3c9ed2",
-  "version": 16
+  "version": 17
 }
