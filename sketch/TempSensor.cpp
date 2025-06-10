@@ -1,6 +1,7 @@
 #include "TempSensor.h"
 #include <DHT.h>
 #include <env.h>
+#include "config.h"
 
 #define DHTTYPE DHT22
 
@@ -18,29 +19,34 @@ bool TempSensor::temperaturaValida() {
     return !isnan(ultimaTemperatura);
 }
 
+float randomTemp() {
+    return random(TEMP_MIN_SIMULADA, TEMP_MAX_SIMULADA + 1);
+}
+
 float simularTemperatura() {
-    // La primera vez que se llama a esta función, se simula una temperatura 
-    //aleatoria entre 10 y 35 grados Celsius. Despues de eso, crece hacia 
-    //el extremo que tenga más lejos (10 o 35) de a 1 cada 5 segundos, 
-    //y cuando llega al límite, vuelve para el otro lado.
     static float temperaturaSimulada = 0;
-    static unsigned long ultimaLecturaSimuladaMs = 0;
-    static bool creciendo = true;
-    if ((millis() - ultimaLecturaSimuladaMs) > 5000) {
-        ultimaLecturaSimuladaMs = millis();
+    static float objetivo = 0;
+    static unsigned long ultimaLecturaMs = 0;
+
+    if ((millis() - ultimaLecturaMs) > 5000) {
+        ultimaLecturaMs = millis();
+
         if (temperaturaSimulada == 0) {
-            temperaturaSimulada = random(10, 35);
+            temperaturaSimulada = randomTemp();
+            objetivo = randomTemp();
+        }
+
+        if (abs(temperaturaSimulada - objetivo) < 0.5) {
+            objetivo = randomTemp();
         } else {
-            if (creciendo) {
-                temperaturaSimulada += 1;
-                if (temperaturaSimulada >= 35) {
-                    creciendo = false;
-                }
+            float paso = random(0, 21) / 10.0; // Paso de entre 0 y 2
+
+            if (temperaturaSimulada < objetivo) {
+                temperaturaSimulada += paso;
+                if (temperaturaSimulada > objetivo) temperaturaSimulada = objetivo;
             } else {
-                temperaturaSimulada -= 1;
-                if (temperaturaSimulada <= 10) {
-                    creciendo = true;
-                }
+                temperaturaSimulada -= paso;
+                if (temperaturaSimulada < objetivo) temperaturaSimulada = objetivo;
             }
         }
     }

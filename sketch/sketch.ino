@@ -69,31 +69,36 @@ void printTemperatura() {
 
 // Módulo Humedad.
 // ---------------------------------
+float randomHumedad() {
+    return random(HUMEDAD_MIN_SIMULADA, HUMEDAD_MAX_SIMULADA + 1);
+}
+
 float ultimaHumedad = 0;
 
 float simularHumedad() {
-    // La primera vez que se llama a esta función, se simula una humedad 
-    //aleatoria entre 30 y 95 por ciento. Despues de eso, crece hacia
-    //el extremo que tenga más lejos (30 o 95) de a 1 cada 5 segundos, 
-    //y cuando llega al límite, vuelve para el otro lado.
     static float humedadSimulada = 0;
-    static unsigned long ultimaLecturaSimuladaMs = 0;
-    static bool creciendo = true;
-    if ((millis() - ultimaLecturaSimuladaMs) > 5000) {
-        ultimaLecturaSimuladaMs = millis();
+    static float objetivo = 0;
+    static unsigned long ultimaLecturaMs = 0;
+
+    if ((millis() - ultimaLecturaMs) > 5000) {
+        ultimaLecturaMs = millis();
+
         if (humedadSimulada == 0) {
-            humedadSimulada = random(30, 95);
+            humedadSimulada = randomHumedad();
+            objetivo = randomHumedad();
+        }
+
+        if (abs(humedadSimulada - objetivo) < 0.5) {
+            objetivo = randomHumedad();
         } else {
-            if (creciendo) {
-                humedadSimulada += 1;
-                if (humedadSimulada >= 35) {
-                    creciendo = false;
-                }
+            float paso = random(0, 21) / 10.0; // Paso de entre 0 y 2
+
+            if (humedadSimulada < objetivo) {
+                humedadSimulada += paso;
+                if (humedadSimulada > objetivo) humedadSimulada = objetivo;
             } else {
-                humedadSimulada -= 1;
-                if (humedadSimulada <= 10) {
-                    creciendo = true;
-                }
+                humedadSimulada -= paso;
+                if (humedadSimulada < objetivo) humedadSimulada = objetivo;
             }
         }
     }
