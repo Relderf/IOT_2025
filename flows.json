@@ -19,12 +19,11 @@
         "nl": false,
         "rap": false,
         "inputs": 0,
-        "x": 250,
-        "y": 220,
+        "x": 270,
+        "y": 260,
         "wires": [
             [
-                "110d6187c12cc7fb",
-                "a1cd2cc321c3cb11"
+                "110d6187c12cc7fb"
             ]
         ]
     },
@@ -41,8 +40,8 @@
         "targetType": "full",
         "statusVal": "",
         "statusType": "auto",
-        "x": 710,
-        "y": 220,
+        "x": 750,
+        "y": 260,
         "wires": []
     },
     {
@@ -67,7 +66,7 @@
         "payload": "",
         "payloadType": "date",
         "x": 250,
-        "y": 120,
+        "y": 140,
         "wires": [
             [
                 "110d6187c12cc7fb"
@@ -86,11 +85,13 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 470,
-        "y": 180,
+        "x": 490,
+        "y": 260,
         "wires": [
             [
-                "a1cd2cc321c3cb11"
+                "a1cd2cc321c3cb11",
+                "3e69fd046821caf3",
+                "7e55999e9d99a565"
             ]
         ]
     },
@@ -108,8 +109,8 @@
         "correl": "",
         "expiry": "",
         "broker": "9228fce8f2bf299a",
-        "x": 750,
-        "y": 320,
+        "x": 770,
+        "y": 380,
         "wires": []
     },
     {
@@ -117,18 +118,39 @@
         "type": "function",
         "z": "630ff27b3317931f",
         "name": "Motor manager",
-        "func": "\nreturn msg;",
+        "func": "let temp = msg.payload.temperatura;\n\nif (temp <= 20) {\n    return { payload: \"CERRAR\" };\n} else if (temp >= 30) {\n    return { payload: \"ABRIR\" };\n}\n\nreturn null;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 480,
-        "y": 300,
+        "x": 520,
+        "y": 380,
         "wires": [
-            []
+            [
+                "a1cd2cc321c3cb11",
+                "4e6c69bdd8db9718"
+            ]
         ]
+    },
+    {
+        "id": "7e55999e9d99a565",
+        "type": "influxdb out",
+        "z": "630ff27b3317931f",
+        "influxdb": "ec4f1a47221a48c3",
+        "name": "Guardar en Influx",
+        "measurement": "sensores",
+        "precision": "",
+        "retentionPolicy": "",
+        "database": "database",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "organisation",
+        "bucket": "bucket",
+        "x": 790,
+        "y": 140,
+        "wires": []
     },
     {
         "id": "9228fce8f2bf299a",
@@ -160,5 +182,20 @@
         "willMsg": {},
         "userProps": "",
         "sessionExpiry": ""
+    },
+    {
+        "id": "ec4f1a47221a48c3",
+        "type": "influxdb",
+        "hostname": "influxdb",
+        "port": 8086,
+        "protocol": "http",
+        "database": "telegraf",
+        "name": "Influx Local",
+        "usetls": false,
+        "tls": "",
+        "influxdbVersion": "1.x",
+        "url": "http://localhost:8086",
+        "timeout": 10,
+        "rejectUnauthorized": true
     }
 ]
