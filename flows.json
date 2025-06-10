@@ -20,7 +20,7 @@
         "rap": false,
         "inputs": 0,
         "x": 270,
-        "y": 260,
+        "y": 300,
         "wires": [
             [
                 "110d6187c12cc7fb"
@@ -41,14 +41,14 @@
         "statusVal": "",
         "statusType": "auto",
         "x": 750,
-        "y": 260,
+        "y": 300,
         "wires": []
     },
     {
         "id": "3b5973401896c282",
         "type": "inject",
         "z": "630ff27b3317931f",
-        "name": "",
+        "name": "Test",
         "props": [
             {
                 "p": "payload"
@@ -66,7 +66,7 @@
         "payload": "",
         "payloadType": "date",
         "x": 250,
-        "y": 140,
+        "y": 180,
         "wires": [
             [
                 "110d6187c12cc7fb"
@@ -86,7 +86,7 @@
         "finalize": "",
         "libs": [],
         "x": 490,
-        "y": 260,
+        "y": 300,
         "wires": [
             [
                 "a1cd2cc321c3cb11",
@@ -110,7 +110,7 @@
         "expiry": "",
         "broker": "9228fce8f2bf299a",
         "x": 770,
-        "y": 380,
+        "y": 420,
         "wires": []
     },
     {
@@ -118,7 +118,7 @@
         "type": "function",
         "z": "630ff27b3317931f",
         "name": "Motor manager",
-        "func": "let temp = msg.payload.temperatura;\n\nif (temp <= 20) {\n    return { payload: \"CERRAR\" };\n} else if (temp >= 30) {\n    return { payload: \"ABRIR\" };\n}\n\nreturn null;",
+        "func": "let temp = msg.payload.temperatura;\n\nif (temp <= 20) {\n    return { payload: \"cerrar\" };\n} else if (temp >= 30) {\n    return { payload: \"abrir\" };\n}\n\nreturn null;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -126,7 +126,7 @@
         "finalize": "",
         "libs": [],
         "x": 520,
-        "y": 380,
+        "y": 420,
         "wires": [
             [
                 "a1cd2cc321c3cb11",
@@ -148,8 +148,8 @@
         "retentionPolicyV18Flux": "",
         "org": "organisation",
         "bucket": "bucket",
-        "x": 570,
-        "y": 140,
+        "x": 530,
+        "y": 180,
         "wires": []
     },
     {
