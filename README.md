@@ -1,4 +1,4 @@
-# Bot de Control de Ventanas por Temperatura
+# Control de Ventanas por Temperatura - TP2  IOT 2025
 
 ## Integrantes
 
@@ -9,45 +9,47 @@
 
 ## Descripción del Proyecto
 
-Este proyecto consiste en un sistema de control automatizado de ventanas basado en la lectura de temperatura ambiente
-mediante un **ESP32** y comunicación con un bot de **Telegram**. El objetivo es simular un entorno de domótica donde las
-ventanas se abren o cierran automáticamente, según la temperatura, y los usuarios pueden consultar y operar el sistema a
-través de comandos por chat.
+Este proyecto corresponde a la **segunda parte** del sistema de control de ventanas basado en temperatura, desarrollado para la materia *Internet de las Cosas (2025)*. Se eliminó la automatización mediante Telegram y se incorporaron herramientas propias de entornos industriales IoT para lograr una solución robusta y monitoreable.
 
-Entre las principales funcionalidades:
+Se simula el comportamiento de un sistema donde un **ESP32** publica lecturas de **temperatura** y **humedad** a un **broker MQTT**, y **Node-RED** se encarga del procesamiento, ordenamiento y almacenamiento de los datos, incluyendo el control del actuador de ventanas. La visualización histórica y en tiempo real se realiza mediante **InfluxDB** y **Grafana**.
 
-- Lectura de temperatura (mockeada en versión de pruebas).
-- Control de apertura/cierre de ventanas simulado.
-- Notificaciones automáticas a un grupo de Telegram con el estado del sistema.
-- Respuesta a comandos enviados por usuarios autorizados.
-- Gestión de conexión WiFi robusta y controlada.
-- Código modular y orientado a objetos.
+Entre las funcionalidades principales:
+
+- Simulación verosímil de variables físicas (temperatura y humedad).
+- Publicación periódica al broker MQTT.
+- Subscripción del ESP32 para recibir órdenes desde Node-RED (abrir/cerrar ventana).
+- Almacenamiento histórico en base de datos InfluxDB.
+- Visualización mediante dashboards en Grafana.
+- Contenerización completa del entorno con Docker Compose.
 
 ---
 
 ## Tecnologías Utilizadas
 
 - **ESP32 DevKit V1**
-- **Arduino IDE**
-- **Librerías**:
-    - `UniversalTelegramBot` (v1.3.0)
-    - `WiFi.h` / `WiFiClientSecure.h`
-    - `DHT.h` (o simulada)
+- **MQTT (Mosquitto)**
+- **Node-RED**
+- **InfluxDB**
+- **Grafana**
+- **Docker Compose**
 - Lenguaje: **C++**
 
 ---
 
 ## Capturas de Pantalla
 
-### · Interacción del bot en el grupo de Telegram
+* _MQTT Explorer_
+![MQTT Explorer](resources/mqtt_explorer.png)
+  
+* _Node-RED_
+![Node-RED](resources/node-red.png)
 
-![Captura del bot en el grupo](resources/Telegram_1.png)
+* _InfluxDB_
+![InfluxDB](resources/influx.png)
 
-![Captura del bot en el grupo](resources/Telegram_2.png)
+* _Grafana_
+![Grafana](resources/grafana.png)
 
-### · Ejecución en consola del Arduino IDE
-
-![Captura de la consola](resources/Terminal.png)
 
 ---
 
@@ -55,48 +57,58 @@ Entre las principales funcionalidades:
 
 ```
 IOT_2025/
-├── resources/    # Recursos extra, no fuentes.
-│ ├── Telegram.png    # Captura del bot funcionando
-│ └── Terminal.png    # Captura de la consola del ESP32
-├── sketch/   # Fuentes del proyecto (para Wokwi o IDE).
-│ ├── config.h              # Valores de configuración.
-│ ├── env.h                 # Valores secretos; Token, SSID y chat IDs.
-│ ├── env.h.example         # Ejemplo de env.h para configurar.
-│ ├── MotorDriver(.cpp/h)   # Módulo de control del motor.
-│ ├── sketch.ino            # Programa principal.
-│ ├── TelegramBot(.cpp/h)   # Módulo de gestión del Bot.
-│ ├── TempSensor(.cpp/h)    # Módulo de control de temperatura.
-│ └── WifiConn(.cpp/h)      # Módulo de control de WiFi.
-├── wokwi/    # Archivos para proyecto simulador Wokwi.
-│ ├── diagram.json        # Configuración para simulador Wokwi.
-│ ├── libraries.txt       # Librerías utilizadas.
-│ └── wokwi-project.txt   # Info proyecto Wokwi.
+├── docker/ # Archivos de definición de servicios para Docker
+│ └── docker-compose.yml # Orquestación de servicios (Node-RED, Mosquitto, InfluxDB, Grafana)
+├── grafana/ # Configuración inicial de dashboards (opcional)
+├── node-red/ # Flujos exportados de Node-RED (.json)
+├── sketch/ # Código fuente del ESP32
+│ ├── config.h
+│ ├── env.h
+│ ├── env.h.example
+│ ├── MotorDriver.cpp / .h
+│ ├── sketch.ino
+│ ├── TempSensor.cpp / .h
+│ ├── HumSensor.cpp / .h
+│ └── WifiConn.cpp / .h
+├── resources/ # Capturas y otros recursos (vacío por ahora)
+├── wokwi/ # Proyecto de simulación en Wokwi
+│ ├── diagram.json
+│ └── wokwi-project.txt
 ├── .gitignore
-└── README.md   # Este archivo.
+└── README.md # Este archivo
 ```
 
 ---
 
-## Comandos Disponibles en Telegram
+## Contenedor
 
-- `/ayuda` → Devuelve la lista de comandos disponibles.
-- `/estado` → Informa la temperatura actual y el estado de las ventanas.
-- `/activar` / `/desactivar` → Controla el modo automático.
-- `/abrir` / `/cerrar` → Modifica manualmente el estado de las ventanas, desactivando a su vez el modo automático.
+- Las aplicaciones provistas por la cátedra son gestionadas en un contenedor de kubernetes, cuya imagen puede generarse con el archivo docker-compose.yaml del siguiente repositorio:
+  - https://gitlab.com/dgraselli/stack-nodered-mqtt/-/tree/master
+
+---
+
+
+## Flujo de Datos
+
+1. **ESP32** publica temperatura y humedad en un tópico MQTT "esp/sensores" cada 5 segundos. A su vez, se suscribe a "esp32/ventanas".
+2. **Node-RED**:
+   - Se suscribe a "esp32/sensores" y almacena los datos en **InfluxDB**.
+   - Evalúa las condiciones de clima y para terperaturas debajo de los 20 o por encima de los 30 grados detectados, publica en el tópico "esp/ventanas" los mensajes "cerrar" o "abrir" respectivamente.
+3. **ESP32** actúa según lo recibido en su suscripción a "esp32/ventanas" mediante el método _callback()_: ordenando al motor a abrir o cierrar las ventanas.
+4. **Grafana** consulta InfluxDB y presenta los datos de temperatura y humedad en tiempo real o de forma histórica.
 
 ---
 
 ## Notas
 
-- Para compilar el proyecto se debe copiar el archivo `./sketch/env.h.example` a `./sketch/env.h` y configurar los
-  valores (token de Bot Telegram, identificadores de chat de Telegram, entre otros).
-- Si no se conecta un sensor, las temperaturas se deben simular. Para esto modificar la constante `TEMP_MOCK` del
-  archivo de configuración `./sketch/config.h`, seteando el valor a `true`. De esta forma, las temperaturas serán
-  simuladas mediante un generador aleatorio (`random()`).
-- En `./sketch/config.h` se puede también modificar el resto de los valores para configurar el proyecto (por ejemplo,
-  cuál temperatura abre las ventanas y cuál las cierra, entre otros).
-- El sistema distingue usuarios válidos por su chat ID (configurables).
-- El bot puede operar en modo privado o grupal, según el modo de privacidad en BotFather.
-- Se utilizó `WiFiClientSecure` para comunicación cifrada con la API de Telegram.
+- El archivo `./sketch/env.h` debe contener las credenciales necesarias para conectar el ESP32 a la red Wi-Fi y al broker MQTT.
+- `config.h` define constantes como los umbrales de temperatura para abrir/cerrar la ventana, tiempo entre publicaciones, etc.
+- La simulación de temperatura y humedad puede activarse según el entorno (real o Wokwi).
+- El entorno completo puede correr en Docker (ver `docker-compose.yml` en el repositorio referenciado en este readme).
+- Para ver los dashboards, acceder a Grafana (`localhost:3000`) y cargar el dashboard con la configuración guardada en _grafana.json_"_.
 
 ---
+
+## Simulación de Variables
+
+- Simula valores aleatórios entre **5°C y 45°C** y **10% y 90%** de humedad, de manera ligeramente cambiantes para gráficos no tan lineales.
