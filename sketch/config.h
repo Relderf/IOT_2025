@@ -19,12 +19,9 @@
 #define WIFI_CONNECTION_TIMEOUT 1000    // =1s. Espera entre intentos de conexión WiFi.
 #define WIFI_MAX_ATTEMPTS 5             // Cantidad de intentos de conexión a WiFi antes de fallar.
 
-#define BOT_INTERVALO_NOTIFICACION 300000      // =5m. Intervalo de espera entre informes de estado del Bot.
-#define BOT_INTERVALO_CHEQUEO_MENSAJES 5000    // =5s. Intervalo de espera entre chequeo de mensajes nuevos del Bot.
-
 #define MQTT_INTERVALO_PUSH 5000    // =5s. Intervalo de espera entre publicación de tópicos MQTT.
 #define MQTT_CONN_DELAY 5000        // =5s. Intervalo de espera entre intentos de conexión a broker MQTT.
 
-#define LOOP_DELAY 3000    // =3s. Intervalo de espera de loop principal de ejecución.
+#define LOOP_DELAY 1000    // =3s. Intervalo de espera de loop principal de ejecución.
 
 #define MSG_MAX_LENGTH 64    // Longitud máxima de los mensajes que se envían por MQTT.

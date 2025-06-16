@@ -11,7 +11,7 @@
 
 Este proyecto corresponde a la **segunda parte** del sistema de control de ventanas basado en temperatura, desarrollado para la materia *Internet de las Cosas (2025)*. Se eliminó la automatización mediante Telegram y se incorporaron herramientas propias de entornos industriales IoT para lograr una solución robusta y monitoreable.
 
-Se simula el comportamiento de un sistema donde un **ESP32** publica lecturas de **temperatura** y **humedad** a un **broker MQTT**, y **Node-RED** se encarga del procesamiento, ordenamiento y almacenamiento de los datos, incluyendo el control del actuador de ventanas. La visualización histórica y en tiempo real se realiza mediante **InfluxDB** y **Grafana**.
+Se simula el comportamiento de un sistema donde un **ESP32** publica lecturas de **temperatura** y **humedad** a un **broker MQTT**, y **Node-RED** se encarga del procesamiento, ordenamiento y almacenamiento de los datos, incluyendo el control de apertura de las ventanas. La visualización histórica y en tiempo real se realiza mediante **InfluxDB** y **Grafana**.
 
 Entre las funcionalidades principales:
 
@@ -39,15 +39,19 @@ Entre las funcionalidades principales:
 ## Capturas de Pantalla
 
 * _MQTT Explorer_
+  
 ![MQTT Explorer](resources/mqtt_explorer.png)
   
 * _Node-RED_
+  
 ![Node-RED](resources/node-red.png)
 
 * _InfluxDB_
+  
 ![InfluxDB](resources/influx.png)
 
 * _Grafana_
+  
 ![Grafana](resources/grafana.png)
 
 
