@@ -61,10 +61,6 @@ Entre las funcionalidades principales:
 
 ```
 IOT_2025/
-├── docker/ # Archivos de definición de servicios para Docker
-│ └── docker-compose.yml # Orquestación de servicios (Node-RED, Mosquitto, InfluxDB, Grafana)
-├── grafana/ # Configuración inicial de dashboards (opcional)
-├── node-red/ # Flujos exportados de Node-RED (.json)
 ├── sketch/ # Código fuente del ESP32
 │ ├── config.h
 │ ├── env.h
@@ -75,9 +71,6 @@ IOT_2025/
 │ ├── HumSensor.cpp / .h
 │ └── WifiConn.cpp / .h
 ├── resources/ # Capturas y otros recursos (vacío por ahora)
-├── wokwi/ # Proyecto de simulación en Wokwi
-│ ├── diagram.json
-│ └── wokwi-project.txt
 ├── .gitignore
 └── README.md # Este archivo
 ```
