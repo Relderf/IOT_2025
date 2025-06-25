@@ -15,7 +15,7 @@
       }
     ]
   },
-  "description": "Lecturas de temperatura y humedad ESP32.",
+  "description": "Lecturas de CO2  y humedad ESP32.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
@@ -127,7 +127,7 @@
           "measurement": "sensores",
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT mean(\"temperatura\") FROM \"sensores\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "query": "SELECT mean(\"CO2 \") FROM \"sensores\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -135,7 +135,7 @@
             [
               {
                 "params": [
-                  "temperatura"
+                  "CO2 "
                 ],
                 "type": "field"
               },
@@ -148,7 +148,7 @@
           "tags": []
         }
       ],
-      "title": "Temperatura historica",
+      "title": "CO2 historico",
       "type": "timeseries"
     },
     {
@@ -383,7 +383,7 @@
             [
               {
                 "params": [
-                  "temperatura"
+                  "CO2 "
                 ],
                 "type": "field"
               },
@@ -396,7 +396,7 @@
           "tags": []
         }
       ],
-      "title": "Temperatura actual",
+      "title": "CO2  actual",
       "type": "gauge"
     },
     {

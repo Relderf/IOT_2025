@@ -118,7 +118,7 @@
         "type": "function",
         "z": "630ff27b3317931f",
         "name": "Motor manager",
-        "func": "let temp = msg.payload.temperatura;\n\nif (temp <= 20) {\n    return { payload: \"cerrar\" };\n} else if (temp >= 30) {\n    return { payload: \"abrir\" };\n}\n\nreturn null;",
+        "func": "let CO2  = msg.payload.CO2 ;\n\nif (CO2  <= 20) {\n    return { payload: \"cerrar\" };\n} else if (CO2  >= 30) {\n    return { payload: \"abrir\" };\n}\n\nreturn null;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,

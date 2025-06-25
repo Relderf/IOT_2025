@@ -36,24 +36,24 @@ void printVentanas() {
 // ---------------------------------
 
 
-// Módulo Temperatura.
+// Módulo CO2
 // ---------------------------------
-#include "TempSensor.h"
-TempSensor tempSensor(TEMP_SENSOR_PIN, TEMP_SENSOR_DELAY);
-float ultimaTemperatura;
+#include "CO2Sensor.h"
+CO2Sensor co2Sensor(CO2_SENSOR_PIN, CO2_SENSOR_DELAY);
+float ultimoCO2;
 
-void checkTemperatura() {
-  ultimaTemperatura = tempSensor.getTemperatura();
-  if (!tempSensor.temperaturaValida()) {
-    Serial.println("Error al obtener la temperatura.");
-    ultimaTemperatura = -1;
+void checkCO2() {
+  ultimoCO2 = co2Sensor.getCO2();
+  if (!co2Sensor.CO2Valida()) {
+    Serial.println("Error al obtener el CO2.");
+    ultimoCO2 = -1;
     return;
   }
 }
 
-void printTemperatura() {
-  if (tempSensor.temperaturaValida()) {
-    Serial.println("Temperatura: " + String(tempSensor.getTemperatura()) + " °C.");
+void printCO2() {
+  if (co2Sensor.CO2Valida()) {
+    Serial.println("CO2: " + String(co2Sensor.getCO2()) + " ppm");
   }
 }
 // ---------------------------------
@@ -73,15 +73,15 @@ void checkMqttConnection() {
   mqttClient.loop();
 }
 
-static float ultimaTempEnviada = -1000;
+static float ultimoCO2Enviado = -1000;
 
 void publicarTopicosMqtt() {
   if ((millis() - ultimoPushMqtt) > intervaloPushMqtt) {
-    if (ultimaTemperatura != ultimaTempEnviada) {
+    if (ultimoCO2 != ultimoCO2Enviado) {
       char mensajeMqtt[MSG_MAX_LENGTH];
-      snprintf(mensajeMqtt, MSG_MAX_LENGTH, "{\"temperatura\":%.2f}", ultimaTemperatura);
-      mqttClient.publish("esp32/sensores", mensajeMqtt);
-      ultimaTempEnviada = ultimaTemperatura;
+      snprintf(mensajeMqtt, MSG_MAX_LENGTH, "{\"CO2\":%.2f}", ultimoCO2);
+      mqttClient.publish("esp32/co2", mensajeMqtt);
+      ultimoCO2Enviado = ultimoCO2;
     }
     ultimoPushMqtt = millis();
   }
@@ -93,7 +93,7 @@ void setup() {
   Serial.begin(115200);
   Serial.println("Configurando el ESP32...");
   motor.init(MOTOR_DEFAULT_ESTADO, MOTOR_DURACION_MS);
-  tempSensor.init();
+  co2Sensor.init();
   Serial.print("DEBUG conexión WiFi (esperado false): ");
   Serial.println(wifiConn.isConnected() ? "true" : "false");
   wifiConn.connect(WIFI_SSID, WIFI_PASSWORD);
@@ -103,8 +103,8 @@ void setup() {
 void loop() {
   Serial.println("Comienza loop...");
   checkMqttConnection();
-  checkTemperatura();
-  printTemperatura();
+  checkCO2();
+  printCO2();
   printVentanas();
   checkMotor();
   publicarTopicosMqtt();
