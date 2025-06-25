@@ -59,54 +59,6 @@ void printTemperatura() {
 // ---------------------------------
 
 
-// Módulo Humedad.
-// ---------------------------------
-float randomHumedad() {
-    return random(HUMEDAD_MIN_SIMULADA, HUMEDAD_MAX_SIMULADA + 1);
-}
-
-float ultimaHumedad = 0;
-
-float simularHumedad() {
-    static float humedadSimulada = 0;
-    static float objetivo = 0;
-    static unsigned long ultimaLecturaMs = 0;
-
-    if ((millis() - ultimaLecturaMs) > 5000) {
-        ultimaLecturaMs = millis();
-
-        if (humedadSimulada == 0) {
-            humedadSimulada = randomHumedad();
-            objetivo = randomHumedad();
-        }
-
-        if (abs(humedadSimulada - objetivo) < 0.5) {
-            objetivo = randomHumedad();
-        } else {
-            float paso = random(0, 21) / 10.0; // Paso de entre 0 y 2
-
-            if (humedadSimulada < objetivo) {
-                humedadSimulada += paso;
-                if (humedadSimulada > objetivo) humedadSimulada = objetivo;
-            } else {
-                humedadSimulada -= paso;
-                if (humedadSimulada < objetivo) humedadSimulada = objetivo;
-            }
-        }
-    }
-    return humedadSimulada;
-}
-
-void checkHumedad() {
-  ultimaHumedad = simularHumedad();
-}
-
-void printHumedad() {
-  Serial.println("Humedad: " + String(ultimaHumedad) + "%.");
-}
-// ---------------------------------
-
-
 // Módulo MQTT.
 // ---------------------------------
 #include "MqttClient.h"
@@ -122,16 +74,14 @@ void checkMqttConnection() {
 }
 
 static float ultimaTempEnviada = -1000;
-static float ultimaHumEnviada = -1000;
 
 void publicarTopicosMqtt() {
   if ((millis() - ultimoPushMqtt) > intervaloPushMqtt) {
-    if (ultimaTemperatura != ultimaTempEnviada || ultimaHumedad != ultimaHumEnviada) {
+    if (ultimaTemperatura != ultimaTempEnviada) {
       char mensajeMqtt[MSG_MAX_LENGTH];
-      snprintf(mensajeMqtt, MSG_MAX_LENGTH, "{\"temperatura\":%.2f,\"humedad\":%.2f}", ultimaTemperatura, ultimaHumedad);
+      snprintf(mensajeMqtt, MSG_MAX_LENGTH, "{\"temperatura\":%.2f}", ultimaTemperatura);
       mqttClient.publish("esp32/sensores", mensajeMqtt);
       ultimaTempEnviada = ultimaTemperatura;
-      ultimaHumEnviada = ultimaHumedad;
     }
     ultimoPushMqtt = millis();
   }
@@ -154,9 +104,7 @@ void loop() {
   Serial.println("Comienza loop...");
   checkMqttConnection();
   checkTemperatura();
-  checkHumedad();
   printTemperatura();
-  printHumedad();
   printVentanas();
   checkMotor();
   publicarTopicosMqtt();
