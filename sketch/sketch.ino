@@ -20,18 +20,11 @@ WifiConn wifiConn(WIFI_MAX_ATTEMPTS, WIFI_CONNECTION_TIMEOUT);
 
 // Módulo Ventanas.
 // ---------------------------------
-bool ventanasEnUso() {
-  return motor.estaEncendido();
-}
+bool ventilacionActiva = false;
 
-
-void printVentanas() {
-  Serial.print("Ventanas: ");
-  if (ventanasEnUso()) {
-    Serial.println(motor.getEstadoVentanas() ? "Abriendo..." : "Cerrando...");
-  } else {
-    Serial.println(motor.getEstadoVentanas() ? "Abiertas." : "Cerradas.");
-  }
+void printVentilacion() {
+  Serial.print("Ventilación: ");
+  Serial.println(ventilacionActiva ? "Prendida." : "Apagada.");
 }
 // ---------------------------------
 
@@ -74,20 +67,7 @@ void checkMqttConnection() {
 }
 
 static float ultimoCO2Enviado = -1000;
-
-void publicarTopicosMqtt() {
-  if ((millis() - ultimoPushMqtt) > intervaloPushMqtt) {
-    if (ultimoCO2 != ultimoCO2Enviado) {
-      char mensajeMqtt[MSG_MAX_LENGTH];
-      snprintf(mensajeMqtt, MSG_MAX_LENGTH, "{\"CO2\":%.2f}", ultimoCO2);
-      mqttClient.publish("esp32/co2", mensajeMqtt);
-      ultimoCO2Enviado = ultimoCO2;
-    }
-    ultimoPushMqtt = millis();
-  }
-}
 // ---------------------------------
-
 
 void setup() {
   Serial.begin(115200);
@@ -98,6 +78,7 @@ void setup() {
   Serial.println(wifiConn.isConnected() ? "true" : "false");
   wifiConn.connect(WIFI_SSID, WIFI_PASSWORD);
   mqttClient.init(MQTT_BROKER_ADRESS, MQTT_PORT);
+  mqttClient.actualizarParametros();
 }
 
 void loop() {
@@ -105,8 +86,8 @@ void loop() {
   checkMqttConnection();
   checkCO2();
   printCO2();
-  printVentanas();
+  printVentilacion();
   checkMotor();
-  publicarTopicosMqtt();
+  mqttClient.publicarMqtt(ultimoCO2);
   delay(LOOP_DELAY);
 }
