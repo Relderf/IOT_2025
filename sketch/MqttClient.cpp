@@ -1,5 +1,6 @@
 #include "MqttClient.h"
 #include "MotorDriver.h"
+#include "CO2Sensor.h"
 #include "config.h"
 
 extern bool ventilacionActiva;
@@ -26,6 +27,8 @@ void MqttClient::connect(const char* clientName, int connDelay) {
         if (pubSubClient.connect(clientName)) {
             Serial.println(" connected");
             pubSubClient.subscribe("camara/01/ventilacion");
+            pubSubClient.subscribe("camara/01/kilos");
+            pubSubClient.subscribe("camara/01/M2");
         } else {
             Serial.print("failed, rc=");
             Serial.print(pubSubClient.state());
@@ -55,12 +58,23 @@ void MqttClient::callback(char* topic, byte* payload, unsigned int length) {
             co2Sensor.setVentilacion(false);
             motor.apagar();
         }
+    } else if (String(topic) == "camara/01/kilos") {
+        float kilos = comando.toFloat();
+        if (kilos > 0) {
+            co2Sensor.setKilosPapas(kilos);
+            Serial.println("Kilos de papas actualizados: " + String(kilos));
+        } else {
+            Serial.println("Valor inválido para kilos: " + comando);
+        }
+    } else if (String(topic) == "camara/01/M2") {
+        float m2 = comando.toFloat();
+        if (m2 > 0) {
+            co2Sensor.setM2(m2);
+            Serial.println("Superficie M2 actualizada: " + String(m2));
+        } else {
+            Serial.println("Valor inválido para M2: " + comando);
+        }
     }
-}
-
-void MqttClient::actualizarParametros() {
-    pubSubClient.subscribe("camara/01/kilos");
-    pubSubClient.subscribe("camara/01/M2");
 }
 
 void MqttClient::publicarMqtt(float co2) {

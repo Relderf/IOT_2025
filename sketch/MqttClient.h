@@ -16,7 +16,6 @@ public:
     void loop();
     void publish(const char* topic, const char* payload);
     void callback(char* topic, byte* payload, unsigned int length);
-    void actualizarParametros();
     void publicarMqtt(float co2);
 };
 

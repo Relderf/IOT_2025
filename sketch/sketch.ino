@@ -57,6 +57,7 @@ void printCO2() {
 #include "MqttClient.h"
 MqttClient mqttClient(wifiConn.getClienteInseguro());
 const unsigned long intervaloPushMqtt = MQTT_INTERVALO_PUSH;
+static float ultimoCO2Enviado = -1000;
 unsigned long ultimoPushMqtt;
 
 void checkMqttConnection() {
@@ -66,8 +67,11 @@ void checkMqttConnection() {
   mqttClient.loop();
 }
 
-static float ultimoCO2Enviado = -1000;
+void publicarCO2Mqtt() {
+  mqttClient.publicarMqtt(ultimoCO2);
+}
 // ---------------------------------
+
 
 void setup() {
   Serial.begin(115200);
@@ -78,7 +82,6 @@ void setup() {
   Serial.println(wifiConn.isConnected() ? "true" : "false");
   wifiConn.connect(WIFI_SSID, WIFI_PASSWORD);
   mqttClient.init(MQTT_BROKER_ADRESS, MQTT_PORT);
-  mqttClient.actualizarParametros();
 }
 
 void loop() {
@@ -88,6 +91,6 @@ void loop() {
   printCO2();
   printVentilacion();
   checkMotor();
-  mqttClient.publicarMqtt(ultimoCO2);
+  publicarCO2Mqtt();
   delay(LOOP_DELAY);
 }
