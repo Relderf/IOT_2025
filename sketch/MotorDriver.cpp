@@ -14,7 +14,7 @@ void MotorDriver::init(bool estado, int duracion) {
     duracionEncendidoMs = duracion;
     Serial.print(duracionEncendidoMs);
     tiempoInicioEncendidoMs = 0;
-    ventanasAbiertas = VENTANAS_DEFAULT_ESTADO;
+    ventilacionPrendida = VENTILACION_DEFAULT_ESTADO;
     encendido = !estado;
     Serial.print("ms. Estado: ");
     Serial.print(estado ? "Encendido" : "Apagado");
@@ -28,7 +28,7 @@ void MotorDriver::init(bool estado, int duracion) {
 
 void MotorDriver::encender() {
     if (!estaEncendido()) {
-        Serial.print("Motor: encendeido. Inicio: ");
+        Serial.print("Motor: encendido. Inicio: ");
         tiempoInicioEncendidoMs = millis();
         Serial.print(tiempoInicioEncendidoMs);
         Serial.println("ms.");
@@ -65,24 +65,24 @@ void MotorDriver::loopUpdate() {
     }
 }
 
-void MotorDriver::abrirVentanas() {
-  if (!estaEncendido() && !getEstadoVentanas()) {
+void MotorDriver::prenderVentilacion() {
+  if (!estaEncendido() && !getEstadoVentilacion()) {
     encender();
-    ventanasAbiertas = true;
+    ventilacionPrendida = true;
   }
 }
 
-void MotorDriver::cerrarVentanas() {
-  if (!estaEncendido() && getEstadoVentanas()) {
+void MotorDriver::apagarVentilacion() {
+  if (!estaEncendido() && getEstadoVentilacion()) {
     encender();
-    ventanasAbiertas = false;
+    ventilacionPrendida = false;
   }
 }
 
-bool MotorDriver::puedeAbrirVentanas() {
-    return !estaEncendido() && !ventanasAbiertas;
+bool MotorDriver::puedePrenderVentilacion() {
+    return !estaEncendido() && !ventilacionPrendida;
 }
 
-bool MotorDriver::getEstadoVentanas() {
-  return ventanasAbiertas;
+bool MotorDriver::getEstadoVentilacion() {
+  return ventilacionPrendida;
 }

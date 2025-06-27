@@ -61,7 +61,6 @@ void MqttClient::callback(char* topic, byte* payload, unsigned int length) {
     } else if (String(topic) == "camara/01/kilos") {
         float kilos = comando.toFloat();
         if (kilos > 0) {
-            co2Sensor.setKilosPapas(kilos);
             Serial.println("Kilos de papas actualizados: " + String(kilos));
         } else {
             Serial.println("Valor inválido para kilos: " + comando);
@@ -69,7 +68,6 @@ void MqttClient::callback(char* topic, byte* payload, unsigned int length) {
     } else if (String(topic) == "camara/01/M2") {
         float m2 = comando.toFloat();
         if (m2 > 0) {
-            co2Sensor.setM2(m2);
             Serial.println("Superficie M2 actualizada: " + String(m2));
         } else {
             Serial.println("Valor inválido para M2: " + comando);
