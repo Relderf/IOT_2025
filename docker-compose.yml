@@ -34,6 +34,10 @@ services:
       - "3000:3000"
     links:
       - influxdb
+    volumes:
+      - ./grafana/provisioning/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml
+      - ./grafana/provisioning/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+      - ./grafana/dashboards:/etc/grafana/dashboards
 
   telegraf:
     image: telegraf:1.16

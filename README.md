@@ -91,9 +91,9 @@ IOT_2025/
 ```shell
 docker compose up -d
 ```
-- Para crear una BD en Influx:
+- Para crear la BD en Influx:
 ```shell
-docker exec -it iot_2025-influxdb-1 influx -execute "create database test"
+docker exec -it iot_2025-influxdb-1 influx -execute "create database iot2025_tp_final"
 ```
 - Para ver las bases creadas:
 ```shell
