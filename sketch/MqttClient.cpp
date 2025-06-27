@@ -28,7 +28,7 @@ void MqttClient::connect(const char* clientName, int connDelay) {
             Serial.println(" connected");
             pubSubClient.subscribe("camara/01/ventilacion");
             pubSubClient.subscribe("camara/01/kilos");
-            pubSubClient.subscribe("camara/01/M2");
+            pubSubClient.subscribe("camara/01/m3");
         } else {
             Serial.print("failed, rc=");
             Serial.print(pubSubClient.state());
