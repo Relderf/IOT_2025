@@ -3,3 +3,4 @@ sketch/env.h
 .vscode
 mosquitto/data/
 nodered/data/
+grafana/data/

@@ -38,6 +38,7 @@ services:
       - ./grafana/provisioning/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml
       - ./grafana/provisioning/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
       - ./grafana/dashboards:/etc/grafana/dashboards
+      - ./grafana/data:/var/lib/grafana
 
   telegraf:
     image: telegraf:1.16
