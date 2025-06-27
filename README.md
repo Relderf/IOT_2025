@@ -86,9 +86,19 @@ IOT_2025/
 
 ## Contenedor
 
-- Las aplicaciones provistas por la cátedra son gestionadas en un contenedor de kubernetes, cuya imagen puede generarse con el archivo docker-compose.yaml del siguiente repositorio:
-  - https://gitlab.com/dgraselli/stack-nodered-mqtt/-/tree/master
-
+- Basado en: https://gitlab.com/dgraselli/stack-nodered-mqtt/-/tree/master
+- Para levantar contenedores:
+```shell
+docker compose up -d
+```
+- Para crear una BD en Influx:
+```shell
+docker exec -it iot_2025-influxdb-1 influx -execute "create database test"
+```
+- Para ver las bases creadas:
+```shell
+docker exec -it iot_2025-influxdb-1 influx -execute "show databases"
+```
 ---
 
 

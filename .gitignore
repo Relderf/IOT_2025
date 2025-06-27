@@ -1,3 +1,5 @@
 sketch/env.h
 .idea/
 .vscode
+mosquitto/data/
+nodered/data/
