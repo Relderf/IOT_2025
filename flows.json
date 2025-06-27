@@ -2,7 +2,7 @@
     {
         "id": "630ff27b3317931f",
         "type": "tab",
-        "label": "TP2",
+        "label": "Trabajo Final CO2",
         "disabled": false,
         "info": "",
         "env": []
@@ -12,7 +12,7 @@
         "type": "mqtt in",
         "z": "630ff27b3317931f",
         "name": "Recibir datos",
-        "topic": "esp32/sensores",
+        "topic": "camara/01/CO2",
         "qos": "0",
         "datatype": "auto-detect",
         "broker": "9228fce8f2bf299a",
@@ -48,13 +48,23 @@
         "id": "3b5973401896c282",
         "type": "inject",
         "z": "630ff27b3317931f",
-        "name": "Test",
+        "name": "KG y M3",
         "props": [
             {
                 "p": "payload"
             },
             {
                 "p": "topic",
+                "vt": "str"
+            },
+            {
+                "p": "datos.KGS_PAPAS",
+                "v": "10",
+                "vt": "str"
+            },
+            {
+                "p": "datos.M3",
+                "v": "8",
                 "vt": "str"
             }
         ],
@@ -63,13 +73,13 @@
         "once": false,
         "onceDelay": 0.1,
         "topic": "sensores",
-        "payload": "",
+        "payload": "iso",
         "payloadType": "date",
-        "x": 250,
-        "y": 180,
+        "x": 280,
+        "y": 420,
         "wires": [
             [
-                "110d6187c12cc7fb"
+                "3e69fd046821caf3"
             ]
         ]
     },
@@ -78,7 +88,7 @@
         "type": "function",
         "z": "630ff27b3317931f",
         "name": "JSON",
-        "func": "msg.topic = \"esp32/sensores\";\n\nif (typeof msg.payload === \"string\") {\n    try {\n        msg.payload = JSON.parse(msg.payload);\n    } catch (e) {\n        node.warn(\"Error al parsear JSON: \" + e.message);\n        return null;\n    }\n}\nreturn msg;",
+        "func": "msg.topic = \"camara/01/CO2\";\n\nif (typeof msg.payload === \"string\") {\n    try {\n        msg.datos.co2 = JSON.parse(msg.payload);\n    } catch (e) {\n        node.warn(\"Error al parsear JSON: \" + e.message);\n        return null;\n    }\n}\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -100,7 +110,7 @@
         "type": "mqtt out",
         "z": "630ff27b3317931f",
         "name": "Enviar orden",
-        "topic": "esp32/ventanas",
+        "topic": "camara/01/ventilacion",
         "qos": "0",
         "retain": "false",
         "respTopic": "",
@@ -118,7 +128,7 @@
         "type": "function",
         "z": "630ff27b3317931f",
         "name": "Motor manager",
-        "func": "let CO2  = msg.payload.CO2 ;\n\nif (CO2  <= 20) {\n    return { payload: \"cerrar\" };\n} else if (CO2  >= 30) {\n    return { payload: \"abrir\" };\n}\n\nreturn null;",
+        "func": "let temp = msg.payload.co2;\n\nlet kgs = msg.datos.KGS_PAPAS || 10;\nlet m3 = msg.datos.M3 || 8;\nlet co2 = msg.payload.CO2 || msg.payload; // Puede venir como objeto o valor directo\n\n// Umbrales\nlet CO2_BAJO = 800 * kgs * m3;\nlet CO2_ALTO = 1400 * kgs * m3;\n\n// Lógica de control\nif (co2 >= CO2_ALTO) {\n    // Prender ventilación\n    return { payload: \"prender\" };\n} else if (co2 <= CO2_BAJO) {\n    // Apagar ventilación\n    return { payload: \"apagar\" };\n} else {\n    // No hacer nada\n    return null;\n}",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -162,10 +172,10 @@
                 "p": "payload"
             }
         ],
-        "repeat": "5",
+        "repeat": "",
         "crontab": "",
         "once": true,
-        "onceDelay": 0.1,
+        "onceDelay": "1",
         "topic": "",
         "payload": "",
         "payloadType": "str",
@@ -182,7 +192,7 @@
         "type": "http request",
         "z": "630ff27b3317931f",
         "name": "",
-        "method": "GET",
+        "method": "POST",
         "ret": "txt",
         "paytoqs": "ignore",
         "url": "http://TrabergTau:TauTraberg@influxdb:8086/query?q=CREATE DATABASE telegraf",
