@@ -2,16 +2,16 @@
 #define MOTOR_DEFAULT_ESTADO false    // Estado inicial del motor. TRUE = encendido; FALSE = apagado.
 #define MOTOR_DURACION_MS 10000       // =10s. Tiempo que tarda el motor en abrir/cerrar las ventanas.
 
-#define VENTANAS_DEFAULT_ESTADO false     // Estado inicial de las ventanas. TRUE = abiertas; FALSE = cerradas.
-#define VENTANAS_MODO_AUTOMATICO false    // Estado inicial del modo automático. TRUE = activado; FALSE = desactivado.
+#define VENTILACION_DEFAULT_ESTADO false     // Estado inicial de la ventilación. TRUE = prendida; FALSE = apagada.
+#define VENTILACION_MODO_AUTOMATICO false    // Estado inicial del modo automático. TRUE = activado; FALSE = desactivado.
 
-#define M2 8.0                    // Superficie en metros cuadrados de la habitación.
+#define M3 8.0                    // Volumen en metros cúbicos de la cámara (por defecto 2x2x2).
 #define KGS_PAPAS 10.0            // Cantidad de kilos de papas almacenados (por defecto 10kg).
 
-// Valores de referencia para CO2 en ppm (partes por millón) para un frigorífico con papas:
+// Valores de referencia para CO2 en ppm por m3 para un frigorífico con papas:
 // CO2 normal: < 1000 ppm. CO2 > 2000 ppm indica posible pudrición.
-#define CO2_BAJO (400.0 * KGS_PAPAS / 1.0 * (M2 / 8.0))   // Valor base ajustado por cantidad de papas y superficie.
-#define CO2_ALTO (1200.0 * KGS_PAPAS / 1.0 * (M2 / 8.0))  // Valor crítico ajustado por cantidad de papas y superficie.
+#define CO2_BAJO (800.0 * KGS_PAPAS * M3)   // Valor base ajustado por cantidad de papas y volumen.
+#define CO2_ALTO (1400.0 * KGS_PAPAS * M3)  // Valor crítico ajustado por cantidad de papas y volumen.
 #define CO2_SENSOR_PIN 15        // Pin de conexión del sensor de CO2.
 #define CO2_SENSOR_DELAY 2000    // =2s. Espera desde la última lectura de CO2 para tomar el valor actual.
 #define CO2_MIN_SIMULADO 350.0  // CO2 mínimo simulado para el sensor de CO2 (aire limpio).

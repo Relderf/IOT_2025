@@ -37,8 +37,8 @@ float simularCO2() {
 
     float factorPudricion = papasPudriendose ? 2.0 : 1.0;
     float factorVentilacion = ventilacionActiva ? 0.5 : 1.0;
-    float baseCO2 = 400.0 * KGS_PAPAS * factorPudricion * factorVentilacion * (M2 / 8.0);
-    float maxCO2 = 1200.0 * KGS_PAPAS * factorPudricion * factorVentilacion * (M2 / 8.0);
+    float baseCO2 = 400.0 * KGS_PAPAS * factorPudricion * factorVentilacion * M3;
+    float maxCO2 = 1200.0 * KGS_PAPAS * factorPudricion * factorVentilacion * M3;
 
     if ((millis() - ultimaLecturaMs) > 5000) {
         ultimaLecturaMs = millis();
