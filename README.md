@@ -69,7 +69,6 @@ IOT_2025/
 │ ├── config.h
 │ ├── env.h
 │ ├── env.h.example
-│ ├── MotorDriver.cpp / .h
 │ ├── sketch.ino
 │ ├── CO2 Sensor.cpp / .h
 │ ├── HumSensor.cpp / .h
@@ -108,7 +107,7 @@ docker exec -it iot_2025-influxdb-1 influx -execute "show databases"
 2. **Node-RED**:
    - Se suscribe a "esp32/sensores" y almacena los datos en **InfluxDB**.
    - Evalúa las condiciones de clima y para terperaturas debajo de los 20 o por encima de los 30 grados detectados, publica en el tópico "esp/ventanas" los mensajes "cerrar" o "abrir" respectivamente.
-3. **ESP32** actúa según lo recibido en su suscripción a "esp32/ventanas" mediante el método _callback()_: ordenando al motor a abrir o cierrar las ventanas.
+3. **ESP32** actúa según lo recibido en su suscripción a "camara/01/vetilacion" mediante el método _callback()_: ordenando al sistema de ventilación a prenderse o apagarse.
 4. **Grafana** consulta InfluxDB y presenta los datos de CO2  y humedad en tiempo real o de forma histórica.
 
 ---

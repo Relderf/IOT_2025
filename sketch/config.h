@@ -1,7 +1,3 @@
-#define MOTOR_PIN 2                   // Pin de conexión del motor.
-#define MOTOR_DEFAULT_ESTADO false    // Estado inicial del motor. TRUE = encendido; FALSE = apagado.
-#define MOTOR_DURACION_MS 10000       // =10s. Tiempo que tarda el motor en abrir/cerrar las ventanas.
-
 #define VENTILACION_DEFAULT_ESTADO false     // Estado inicial de la ventilación. TRUE = prendida; FALSE = apagada.
 #define VENTILACION_MODO_AUTOMATICO false    // Estado inicial del modo automático. TRUE = activado; FALSE = desactivado.
 

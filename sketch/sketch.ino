@@ -2,15 +2,6 @@
 #include "config.h"
 
 
-// Módulo Motor.
-// ---------------------------------
-#include "MotorDriver.h"
-void checkMotor() {
-  motor.loopUpdate();
-}
-// ---------------------------------
-
-
 // Módulo WiFi.
 // ---------------------------------
 #include "WifiConn.h"
@@ -76,7 +67,6 @@ void publicarCO2Mqtt() {
 void setup() {
   Serial.begin(115200);
   Serial.println("Configurando el ESP32...");
-  motor.init(MOTOR_DEFAULT_ESTADO, MOTOR_DURACION_MS);
   co2Sensor.init();
   Serial.print("DEBUG conexión WiFi (esperado false): ");
   Serial.println(wifiConn.isConnected() ? "true" : "false");
@@ -90,7 +80,6 @@ void loop() {
   checkCO2();
   printCO2();
   printVentilacion();
-  checkMotor();
   publicarCO2Mqtt();
   delay(LOOP_DELAY);
 }

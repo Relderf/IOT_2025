@@ -1,5 +1,4 @@
 #include "MqttClient.h"
-#include "MotorDriver.h"
 #include "CO2Sensor.h"
 #include "config.h"
 
@@ -52,11 +51,9 @@ void MqttClient::callback(char* topic, byte* payload, unsigned int length) {
         if (comando == "prender") {
             ventilacionActiva = true;
             co2Sensor.setVentilacion(true);
-            motor.encender();
         } else if (comando == "apagar") {
             ventilacionActiva = false;
             co2Sensor.setVentilacion(false);
-            motor.apagar();
         }
     } else if (String(topic) == "camara/01/kilos") {
         float kilos = comando.toFloat();
