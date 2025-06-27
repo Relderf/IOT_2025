@@ -65,12 +65,12 @@ void MqttClient::callback(char* topic, byte* payload, unsigned int length) {
         } else {
             Serial.println("Valor inválido para kilos: " + comando);
         }
-    } else if (String(topic) == "camara/01/M2") {
-        float m2 = comando.toFloat();
-        if (m2 > 0) {
-            Serial.println("Superficie M2 actualizada: " + String(m2));
+    } else if (String(topic) == "camara/01/m3") {
+        float m3 = comando.toFloat();
+        if (m3 > 0) {
+            Serial.println("Espacio en m3 actualizada: " + String(m3));
         } else {
-            Serial.println("Valor inválido para M2: " + comando);
+            Serial.println("Valor inválido para m3: " + comando);
         }
     }
 }
