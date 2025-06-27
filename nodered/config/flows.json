@@ -19,7 +19,7 @@
         "nl": false,
         "rap": false,
         "inputs": 0,
-        "x": 270,
+        "x": 390,
         "y": 300,
         "wires": [
             [
@@ -40,48 +40,9 @@
         "targetType": "full",
         "statusVal": "",
         "statusType": "auto",
-        "x": 750,
+        "x": 970,
         "y": 300,
         "wires": []
-    },
-    {
-        "id": "3b5973401896c282",
-        "type": "inject",
-        "z": "630ff27b3317931f",
-        "name": "KG y M3",
-        "props": [
-            {
-                "p": "payload"
-            },
-            {
-                "p": "topic",
-                "vt": "str"
-            },
-            {
-                "p": "datos.KGS_PAPAS",
-                "v": "10",
-                "vt": "str"
-            },
-            {
-                "p": "datos.M3",
-                "v": "8",
-                "vt": "str"
-            }
-        ],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "sensores",
-        "payload": "iso",
-        "payloadType": "date",
-        "x": 280,
-        "y": 420,
-        "wires": [
-            [
-                "3e69fd046821caf3"
-            ]
-        ]
     },
     {
         "id": "110d6187c12cc7fb",
@@ -95,13 +56,13 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 490,
+        "x": 590,
         "y": 300,
         "wires": [
             [
                 "a1cd2cc321c3cb11",
-                "3e69fd046821caf3",
-                "7e55999e9d99a565"
+                "7e55999e9d99a565",
+                "3e69fd046821caf3"
             ]
         ]
     },
@@ -119,7 +80,7 @@
         "correl": "",
         "expiry": "",
         "broker": "9228fce8f2bf299a",
-        "x": 770,
+        "x": 1050,
         "y": 420,
         "wires": []
     },
@@ -127,15 +88,15 @@
         "id": "3e69fd046821caf3",
         "type": "function",
         "z": "630ff27b3317931f",
-        "name": "Motor manager",
-        "func": "let temp = msg.payload.co2;\n\nlet kgs = msg.datos.KGS_PAPAS || 10;\nlet m3 = msg.datos.M3 || 8;\nlet co2 = msg.payload.CO2 || msg.payload; // Puede venir como objeto o valor directo\n\n// Umbrales\nlet CO2_BAJO = 800 * kgs * m3;\nlet CO2_ALTO = 1400 * kgs * m3;\n\n// Lógica de control\nif (co2 >= CO2_ALTO) {\n    // Prender ventilación\n    return { payload: \"prender\" };\n} else if (co2 <= CO2_BAJO) {\n    // Apagar ventilación\n    return { payload: \"apagar\" };\n} else {\n    // No hacer nada\n    return null;\n}",
+        "name": "Ventilación",
+        "func": "let co2 = msg.payload.co2;\nlet datos = flow.get(\"datos\") || {\"kilos\":10,\"m3\":8};\nlet kgs = datos.kilos || 10;\nlet m3 = datos.m3 || 8;\n\n// Umbrales\nlet CO2_BAJO = 800 * kgs * m3;\nlet CO2_ALTO = 1400 * kgs * m3;\n\n// Lógica\nif (co2 >= CO2_ALTO) {\n    return { payload: \"prender\" };\n} else if (co2 <= CO2_BAJO) {\n    return { payload: \"apagar\" };\n} else {\n    return null;\n}",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 520,
+        "x": 730,
         "y": 420,
         "wires": [
             [
@@ -158,7 +119,7 @@
         "retentionPolicyV18Flux": "",
         "org": "organisation",
         "bucket": "bucket",
-        "x": 530,
+        "x": 670,
         "y": 180,
         "wires": []
     },
@@ -179,7 +140,7 @@
         "topic": "",
         "payload": "",
         "payloadType": "str",
-        "x": 470,
+        "x": 530,
         "y": 60,
         "wires": [
             [
@@ -203,11 +164,151 @@
         "authType": "",
         "senderr": false,
         "headers": [],
-        "x": 770,
+        "x": 830,
         "y": 60,
         "wires": [
             [
                 "a1cd2cc321c3cb11"
+            ]
+        ]
+    },
+    {
+        "id": "3f95d04ae79c39a6",
+        "type": "mqtt out",
+        "z": "630ff27b3317931f",
+        "name": "Enviar kg y m3",
+        "topic": "",
+        "qos": "0",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "9228fce8f2bf299a",
+        "x": 1060,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "c7cd0697ea9bb2be",
+        "type": "inject",
+        "z": "630ff27b3317931f",
+        "name": "Definir kilos y m3",
+        "props": [
+            {
+                "p": "datos",
+                "v": "{\"kilos\":10,\"m3\":8}",
+                "vt": "json"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 340,
+        "y": 520,
+        "wires": [
+            [
+                "2f5096a8bebcb831",
+                "2d3ba062c6247f02"
+            ]
+        ]
+    },
+    {
+        "id": "2f5096a8bebcb831",
+        "type": "function",
+        "z": "630ff27b3317931f",
+        "name": "Datos Mock",
+        "func": "let kilos = Number(msg.datos.kilos);\nlet m3 = Number(msg.datos.m3);\n\nlet msgs = [];\n\nif (!isNaN(kilos) && kilos > 0) {\n    msgs.push({\n        topic: \"camara/01/kilos\",\n        payload: kilos.toString()\n    });\n}\n\nif (!isNaN(m3) && m3 > 0) {\n    msgs.push({\n        topic: \"camara/01/m3\",\n        payload: m3.toString()\n    });\n}\n\nmsg.payload = msgs;\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 570,
+        "y": 520,
+        "wires": [
+            [
+                "6d6071e0f32bff49"
+            ]
+        ]
+    },
+    {
+        "id": "6d6071e0f32bff49",
+        "type": "split",
+        "z": "630ff27b3317931f",
+        "name": "Split",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "property": "payload",
+        "x": 690,
+        "y": 620,
+        "wires": [
+            [
+                "ee1ef0efad7b9299"
+            ]
+        ]
+    },
+    {
+        "id": "62d9a68773a972e3",
+        "type": "debug",
+        "z": "630ff27b3317931f",
+        "name": "Ver mensaje",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1050,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "2d3ba062c6247f02",
+        "type": "function",
+        "z": "630ff27b3317931f",
+        "name": "Guardar datos",
+        "func": "flow.set(\"datos\", msg.datos);\nreturn null;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 480,
+        "y": 620,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ee1ef0efad7b9299",
+        "type": "function",
+        "z": "630ff27b3317931f",
+        "name": "Reasignar topic",
+        "func": "msg.topic = msg.payload.topic;\nmsg.payload = msg.payload.payload;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 820,
+        "y": 520,
+        "wires": [
+            [
+                "3f95d04ae79c39a6",
+                "62d9a68773a972e3"
             ]
         ]
     },
