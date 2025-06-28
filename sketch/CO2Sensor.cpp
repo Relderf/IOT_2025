@@ -26,37 +26,35 @@ float randomCO2() {
 }
 
 float simularCO2() {
-    static float CO2Simulado = 0;
-    static float objetivo = 0;
+    static float CO2Simulado = 400.0 * KGS_PAPAS;
+    static bool papasPudriendose = false;
     static unsigned long ultimaLecturaMs = 0;
+    unsigned long ahora = millis();
 
-    if ((millis() - ultimoCambioPudricion) > (60000 + random(0, 60000))) {
-        papasPudriendose = random(0, 2);
-        ultimoCambioPudricion = millis();
-    }
+    // Solo actualizar cada vuelta del loop (ajusta si querés menos frecuente)
+    if (ahora - ultimaLecturaMs > 1000) {
+        ultimaLecturaMs = ahora;
 
-    float factorPudricion = papasPudriendose ? 2.0 : 1.0;
-    float factorVentilacion = ventilacionActiva ? 0.5 : 1.0;
-    float baseCO2 = 400.0 * KGS_PAPAS * factorPudricion * factorVentilacion * M3;
-    float maxCO2 = 1200.0 * KGS_PAPAS * factorPudricion * factorVentilacion * M3;
-
-    if ((millis() - ultimaLecturaMs) > 5000) {
-        ultimaLecturaMs = millis();
-        if (CO2Simulado == 0) {
-            CO2Simulado = baseCO2;
-            objetivo = maxCO2;
+        // Pudrición: 3% de chance por vuelta si no están podridas
+        if (!papasPudriendose && random(0, 100) < 3) {
+            papasPudriendose = true;
+            Serial.println("Papas pudriéndose detectadas.");
         }
-        if (abs(CO2Simulado - objetivo) < 10.0) {
-            objetivo = baseCO2 + random(0, (int)(maxCO2 - baseCO2));
-        } else {
-            float paso = random(0, 21) / 10.0;
-            if (CO2Simulado < objetivo) {
-                CO2Simulado += paso;
-                if (CO2Simulado > objetivo) CO2Simulado = objetivo;
-            } else {
-                CO2Simulado -= paso;
-                if (CO2Simulado < objetivo) CO2Simulado = objetivo;
+
+        // Si ventilación activa, baja CO2
+        if (ventilacionActiva) {
+            CO2Simulado -= 150.0;
+            if (CO2Simulado < 400.0 * KGS_PAPAS) {
+                CO2Simulado = 400.0 * KGS_PAPAS;
+                papasPudriendose = false; // Se simula que las papas fueron retiradas
+                Serial.println("Papas retiradas, CO2 normalizado.");
             }
+        } else {
+            // Sube CO2 según estado de pudrición
+            float factor = papasPudriendose ? 0.10 : 0.02; // 10% o 2% por vuelta
+            float subida = CO2Simulado * factor;
+            if (subida < 1.0) subida = 1.0; // Siempre sube al menos 1
+            CO2Simulado += subida;
         }
     }
     return CO2Simulado;
