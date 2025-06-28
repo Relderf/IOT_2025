@@ -1,8 +1,5 @@
-#define VENTILACION_DEFAULT_ESTADO false     // Estado inicial de la ventilación. TRUE = prendida; FALSE = apagada.
-#define VENTILACION_MODO_AUTOMATICO false    // Estado inicial del modo automático. TRUE = activado; FALSE = desactivado.
-
 #define M3 8.0                    // Volumen en metros cúbicos de la cámara (por defecto 2x2x2).
-#define KGS_PAPAS 10.0            // Cantidad de kilos de papas almacenados (por defecto 10kg).
+#define KGS_PAPAS 10.0            // Cantidad deakilos de papas almacenados (por defecto 10kg).
 
 // Valores de referencia para CO2 en ppm por m3 para un frigorífico con papas:
 // CO2 normal: < 1000 ppm. CO2 > 2000 ppm indica posible pudrición.

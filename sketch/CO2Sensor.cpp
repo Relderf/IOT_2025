@@ -7,7 +7,7 @@
 
 static bool papasPudriendose = false;
 static unsigned long ultimoCambioPudricion = 0;
-static bool ventilacionActiva = false;
+bool ventilacionActiva = false; // Estado de la ventilación, TRUE = prendida; FALSE = apagada.
 
 CO2Sensor::CO2Sensor(int p, unsigned long intervalo) {
     intervaloLecturaCO2Ms = intervalo;

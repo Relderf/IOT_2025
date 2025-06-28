@@ -14,6 +14,9 @@ MqttClient::MqttClient(WiFiClient& clienteWifi)
 
 void MqttClient::init(const char* mqttAddress, uint16_t mqttPort) {
     pubSubClient.setServer(mqttAddress, mqttPort);
+    pubSubClient.setCallback([this](char* topic, byte* payload, unsigned int length) {
+        this->callback(topic, payload, length);
+    });
 }
 
 bool MqttClient::isConnected() {
@@ -46,7 +49,12 @@ void MqttClient::publish(const char* topic, const char* payload) {
 }
 
 void MqttClient::callback(char* topic, byte* payload, unsigned int length) {
-    String comando((char*)payload, length);
+    char mensaje[length + 1];
+    memcpy(mensaje, payload, length);
+    mensaje[length] = '\0';  // null-terminador
+
+    String comando = String(mensaje);
+
     if (String(topic) == "camara/01/ventilacion") {
         if (comando == "prender") {
             ventilacionActiva = true;
@@ -76,7 +84,7 @@ void MqttClient::publicarMqtt(float co2) {
     if ((millis() - ultimoPushMqtt) > MQTT_INTERVALO_PUSH) {
         if (co2 != ultimoCO2Enviado) {
             char mensajeMqtt[MSG_MAX_LENGTH];
-            snprintf(mensajeMqtt, MSG_MAX_LENGTH, "{\"CO2\":%.2f}", co2);
+            snprintf(mensajeMqtt, MSG_MAX_LENGTH, "{\"co2\":%.2f}", co2);
             pubSubClient.publish("camara/01/co2", mensajeMqtt);
             ultimoCO2Enviado = co2;
         }
