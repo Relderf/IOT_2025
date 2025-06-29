@@ -19,7 +19,7 @@
         "nl": false,
         "rap": false,
         "inputs": 0,
-        "x": 390,
+        "x": 310,
         "y": 300,
         "wires": [
             [
@@ -40,7 +40,7 @@
         "targetType": "full",
         "statusVal": "",
         "statusType": "auto",
-        "x": 1050,
+        "x": 1070,
         "y": 300,
         "wires": []
     },
@@ -80,7 +80,7 @@
         "correl": "",
         "expiry": "",
         "broker": "9228fce8f2bf299a",
-        "x": 1050,
+        "x": 1070,
         "y": 420,
         "wires": []
     },
@@ -353,7 +353,7 @@
         "nl": false,
         "rap": false,
         "inputs": 0,
-        "x": 270,
+        "x": 350,
         "y": 180,
         "wires": [
             [
@@ -374,7 +374,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 520,
+        "x": 620,
         "y": 140,
         "wires": [
             []
@@ -393,7 +393,7 @@
         "targetType": "full",
         "statusVal": "",
         "statusType": "auto",
-        "x": 490,
+        "x": 570,
         "y": 220,
         "wires": []
     },
