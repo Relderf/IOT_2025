@@ -28,9 +28,9 @@ void MqttClient::connect(const char* clientName, int connDelay) {
         Serial.print("MQTT connection...");
         if (pubSubClient.connect(clientName)) {
             Serial.println(" connected");
-            pubSubClient.subscribe("camara/01/ventilacion");
-            pubSubClient.subscribe("camara/01/kilos");
-            pubSubClient.subscribe("camara/01/m3");
+            pubSubClient.subscribe(("camara/" + String(CAMARA_ID) + "/ventilacion").c_str());
+            pubSubClient.subscribe(("camara/" + String(CAMARA_ID) + "/kilos").c_str());
+            pubSubClient.subscribe(("camara/" + String(CAMARA_ID) + "/m3").c_str());
         } else {
             Serial.print("failed, rc=");
             Serial.print(pubSubClient.state());
@@ -55,7 +55,7 @@ void MqttClient::callback(char* topic, byte* payload, unsigned int length) {
 
     String comando = String(mensaje);
 
-    if (String(topic) == "camara/01/ventilacion") {
+    if (String(topic) == "camara/" + String(CAMARA_ID) + "/ventilacion") {
         if (comando == "prender") {
             ventilacionActiva = true;
             co2Sensor.setVentilacion(true);
@@ -63,20 +63,10 @@ void MqttClient::callback(char* topic, byte* payload, unsigned int length) {
             ventilacionActiva = false;
             co2Sensor.setVentilacion(false);
         }
-    } else if (String(topic) == "camara/01/kilos") {
-        float kilos = comando.toFloat();
-        if (kilos > 0) {
-            Serial.println("Kilos de papas actualizados: " + String(kilos));
-        } else {
-            Serial.println("Valor inválido para kilos: " + comando);
-        }
-    } else if (String(topic) == "camara/01/m3") {
-        float m3 = comando.toFloat();
-        if (m3 > 0) {
-            Serial.println("Espacio en m3 actualizada: " + String(m3));
-        } else {
-            Serial.println("Valor inválido para m3: " + comando);
-        }
+    } else if (String(topic) == "camara/" + String(CAMARA_ID) + "/kilos") {
+        co2Sensor.setPapasNormales(comando.toFloat());
+    } else if (String(topic) == "camara/" + String(CAMARA_ID) + "/m3") {
+        co2Sensor.setM3(comando.toFloat());
     }
 }
 
@@ -85,7 +75,7 @@ void MqttClient::publicarMqtt(float co2) {
         if (co2 != ultimoCO2Enviado) {
             char mensajeMqtt[MSG_MAX_LENGTH];
             snprintf(mensajeMqtt, MSG_MAX_LENGTH, "{\"co2\":%.2f}", co2);
-            pubSubClient.publish("camara/01/co2", mensajeMqtt);
+            pubSubClient.publish(("camara/" + String(CAMARA_ID) + "/co2").c_str(), mensajeMqtt);
             ultimoCO2Enviado = co2;
         }
         ultimoPushMqtt = millis();
