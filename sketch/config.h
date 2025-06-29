@@ -1,8 +1,14 @@
+#define CAMARA_ID "01"          // Identificador de la cámara frigorífica.
 #define M3 8.0                    // Volumen en metros cúbicos de la cámara (por defecto 2x2x2).
-#define KGS_PAPAS 10.0            // Cantidad deakilos de papas almacenados (por defecto 10kg).
+#define KGS_PAPAS 5000.0           // Cantidad deakilos de papas almacenados (por defecto 5000kg).
+#define VENTILACION 150.0         // Reducción de CO2 por ventilación (por defecto 150ppm por vuelta de loop).
+#define CO2_PPM_H 10.0           // CO2 en ppm por hora generado por un kilo de papas (por defecto 10ppm/hora).
+#define CO2_PPM_S (CO2_PPM_H / 3600.0) // CO2 en ppm por segundo generado por un kilo de papas (10ppm/hora / 3600 segundos).
+#define FACTOR_CO2_PODRIDAS 2.0 // Factor de aumento de CO2 por segundo cuando las papas se pudren (por defecto el doble de lo normal).
+#define CHANCE_PUDRICION 2.0  // Por vuelta del loop se pudren entre 0% y 2% de las papas totales (por defecto 2%).
 
 // Valores de referencia para CO2 en ppm por m3 para un frigorífico con papas:
-// CO2 normal: < 1000 ppm. CO2 > 2000 ppm indica posible pudrición.
+// CO2 normal: < 800 ppm. CO2 > 1000 ppm indica posible pudrición.
 #define CO2_BAJO (800.0 * KGS_PAPAS * M3)   // Valor base ajustado por cantidad de papas y volumen.
 #define CO2_ALTO (1400.0 * KGS_PAPAS * M3)  // Valor crítico ajustado por cantidad de papas y volumen.
 #define CO2_SENSOR_PIN 15        // Pin de conexión del sensor de CO2.

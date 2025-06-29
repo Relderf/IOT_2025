@@ -10,9 +10,12 @@ private:
 public:
     CO2Sensor(int pin, unsigned long intervaloLecturaCO2Ms);
     void init();
-    float getCO2();
     bool CO2Valida();
+    float getCO2();
+    void setPapasNormales(float kilos);
+    void setM3(float m3);
     void setVentilacion(bool activa);
+    bool getVentilacion();
 };
 
 #endif //CO2SENSOR_H

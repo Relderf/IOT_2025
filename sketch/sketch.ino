@@ -1,7 +1,6 @@
 #include "env.h"
 #include "config.h"
 
-
 // Módulo WiFi.
 // ---------------------------------
 #include "WifiConn.h"
@@ -9,36 +8,26 @@ WifiConn wifiConn(WIFI_MAX_ATTEMPTS, WIFI_CONNECTION_TIMEOUT);
 // ---------------------------------
 
 
-// Módulo Ventanas.
-// ---------------------------------
-bool ventilacionActiva = false;
-
-void printVentilacion() {
-  Serial.print("Ventilación: ");
-  Serial.println(ventilacionActiva ? "Prendida." : "Apagada.");
-}
-// ---------------------------------
-
-
 // Módulo CO2
 // ---------------------------------
 #include "CO2Sensor.h"
 CO2Sensor co2Sensor(CO2_SENSOR_PIN, CO2_SENSOR_DELAY);
-float ultimoCO2;
-
-void checkCO2() {
-  ultimoCO2 = co2Sensor.getCO2();
-  if (!co2Sensor.CO2Valida()) {
-    Serial.println("Error al obtener el CO2.");
-    ultimoCO2 = -1;
-    return;
-  }
-}
 
 void printCO2() {
   if (co2Sensor.CO2Valida()) {
-    Serial.println("CO2: " + String(co2Sensor.getCO2()) + " ppm");
+    Serial.println("CO2 actual: " + String(co2Sensor.getCO2()) + " ppm");
+  } else {
+    Serial.println("CO2 no válido o sensor no disponible.");
   }
+}
+// ---------------------------------
+
+
+// Módulo Ventilación
+// ---------------------------------
+void printVentilacion() {
+  Serial.print("Ventilación: ");
+  Serial.println(co2Sensor.getVentilacion() ? "Prendida." : "Apagada.");
 }
 // ---------------------------------
 
@@ -59,7 +48,7 @@ void checkMqttConnection() {
 }
 
 void publicarCO2Mqtt() {
-  mqttClient.publicarMqtt(ultimoCO2);
+  mqttClient.publicarMqtt(co2Sensor.getCO2());
 }
 // ---------------------------------
 
@@ -77,7 +66,6 @@ void setup() {
 void loop() {
   Serial.println("Comienza loop...");
   checkMqttConnection();
-  checkCO2();
   printCO2();
   printVentilacion();
   publicarCO2Mqtt();

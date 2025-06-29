@@ -5,14 +5,18 @@
 
 #define DHTTYPE DHT22
 
-static bool papasPudriendose = false;
+static float CO2Simulado = 0.0;
+static float papasNormales = KGS_PAPAS;
+static float papasPodridas = 0.0;
+static float m3 = M3; // Volumen de la cámara en m³
+static unsigned long ultimaLecturaMs = 0;
 static unsigned long ultimoCambioPudricion = 0;
 bool ventilacionActiva = false; // Estado de la ventilación, TRUE = prendida; FALSE = apagada.
 
 CO2Sensor::CO2Sensor(int p, unsigned long intervalo) {
-    intervaloLecturaCO2Ms = intervalo;
+    ultimoCO2 = 0.0;
     ultimaLecturaCO2Ms = 0;
-    ultimoCO2 = NAN;
+    intervaloLecturaCO2Ms = intervalo;
 }
 
 void CO2Sensor::init() {}
@@ -21,47 +25,39 @@ bool CO2Sensor::CO2Valida() {
     return !isnan(ultimoCO2);
 }
 
-float randomCO2() {
-    return random(CO2_MIN_SIMULADO, CO2_MAX_SIMULADO + 1);
-}
-
 float simularCO2() {
-    static float CO2Simulado = 400.0 * KGS_PAPAS;
-    static bool papasPudriendose = false;
-    static unsigned long ultimaLecturaMs = 0;
     unsigned long ahora = millis();
 
     // Solo actualizar cada vuelta del loop (ajusta si querés menos frecuente)
     if (ahora - ultimaLecturaMs > 1000) {
         ultimaLecturaMs = ahora;
 
-        // Pudrición: 3% de chance por vuelta si no están podridas
-        if (!papasPudriendose && random(0, 100) < 3) {
-            papasPudriendose = true;
-            Serial.println("Papas pudriéndose detectadas.");
+        // Pudrición: 0-2% de las papas se pudren por vuelta
+        if (papasPodridas < KGS_PAPAS) {
+            papasPodridas = papasPodridas + KGS_PAPAS * (random(0, 200)/100.0);
+            papasNormales = KGS_PAPAS - papasPodridas;
+            if (papasNormales < 0) {
+                papasNormales = 0;
+            }
+            if (papasPodridas > KGS_PAPAS) {
+                papasPodridas = KGS_PAPAS; // No más de 100% de papas podridas
+            }
         }
+
+        // Incremento de CO2 por respiración de papas normales y podridas
+        CO2Simulado = CO2Simulado + (((papasNormales * CO2_PPM_S) 
+                                    +(papasPodridas * CO2_PPM_S * FACTOR_CO2_PODRIDAS))
+                                    /m3);
 
         // Si ventilación activa, baja CO2
         if (ventilacionActiva) {
             CO2Simulado -= 150.0;
-            if (CO2Simulado < 400.0 * KGS_PAPAS) {
-                CO2Simulado = 400.0 * KGS_PAPAS;
-                papasPudriendose = false; // Se simula que las papas fueron retiradas
-                Serial.println("Papas retiradas, CO2 normalizado.");
+            if (CO2Simulado < 0.0) {
+                CO2Simulado = 0.0;
             }
-        } else {
-            // Sube CO2 según estado de pudrición
-            float factor = papasPudriendose ? 0.10 : 0.02; // 10% o 2% por vuelta
-            float subida = CO2Simulado * factor;
-            if (subida < 1.0) subida = 1.0; // Siempre sube al menos 1
-            CO2Simulado += subida;
         }
     }
     return CO2Simulado;
-}
-
-void CO2Sensor::setVentilacion(bool activa) {
-    ventilacionActiva = activa;
 }
 
 void CO2Sensor::checkCO2() {
@@ -78,4 +74,31 @@ void CO2Sensor::checkCO2() {
 float CO2Sensor::getCO2() {
     checkCO2();
     return ultimoCO2;
+}
+
+void CO2Sensor::setPapasNormales(float kilos) {
+    if (kilos >= 0) {
+        papasNormales = kilos;
+        papasPodridas = 0.0; // Reiniciar papas podridas al cambiar cantidad normal
+        Serial.println("Kilos de papas actualizados: " + String(kilos));
+    } else {
+        Serial.println("Valor inválido para kilos: " + String(kilos));
+    }
+}
+
+void CO2Sensor::setM3(float nuevoM3) {
+    if (m3 > 0) {
+        m3 = nuevoM3;
+        Serial.printf("Nuevo volumen de la cámara: %.2fm³.\n", m3);
+    } else {
+        Serial.println("Volumen inválido para la cámara.");
+    }
+}
+
+void CO2Sensor::setVentilacion(bool activa) {
+    ventilacionActiva = activa;
+}
+
+bool CO2Sensor::getVentilacion() {
+    return ventilacionActiva;
 }
