@@ -1,6 +1,6 @@
 [
     {
-        "id": "630ff27b3317931f",
+        "id": "de00eae9dfa0e3da",
         "type": "tab",
         "label": "Trabajo Final CO2",
         "disabled": false,
@@ -8,11 +8,11 @@
         "env": []
     },
     {
-        "id": "mqtt-in",
+        "id": "0200124cafdec0b4",
         "type": "mqtt in",
-        "z": "630ff27b3317931f",
-        "name": "Recibir datos",
-        "topic": "camara/01/CO2",
+        "z": "de00eae9dfa0e3da",
+        "name": "Recibir CO2",
+        "topic": "camara/01/co2",
         "qos": "0",
         "datatype": "auto-detect",
         "broker": "9228fce8f2bf299a",
@@ -23,14 +23,14 @@
         "y": 300,
         "wires": [
             [
-                "110d6187c12cc7fb"
+                "7847943e04c7fb71"
             ]
         ]
     },
     {
-        "id": "a1cd2cc321c3cb11",
+        "id": "4582cfe6af0875eb",
         "type": "debug",
-        "z": "630ff27b3317931f",
+        "z": "de00eae9dfa0e3da",
         "name": "Debug",
         "active": true,
         "tosidebar": true,
@@ -40,16 +40,16 @@
         "targetType": "full",
         "statusVal": "",
         "statusType": "auto",
-        "x": 970,
+        "x": 1050,
         "y": 300,
         "wires": []
     },
     {
-        "id": "110d6187c12cc7fb",
+        "id": "7847943e04c7fb71",
         "type": "function",
-        "z": "630ff27b3317931f",
+        "z": "de00eae9dfa0e3da",
         "name": "JSON",
-        "func": "msg.topic = \"camara/01/CO2\";\n\nif (typeof msg.payload === \"string\") {\n    try {\n        msg.datos.co2 = JSON.parse(msg.payload);\n    } catch (e) {\n        node.warn(\"Error al parsear JSON: \" + e.message);\n        return null;\n    }\n}\nreturn msg;",
+        "func": "msg.topic = \"camara/01/co2\";\n\nif (typeof msg.payload === \"string\") {\n    try {\n        msg.payload = JSON.parse(msg.payload);\n    } catch (e) {\n        node.warn(\"Error al parsear JSON: \" + e.message);\n        return null;\n    }\n}\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -60,16 +60,16 @@
         "y": 300,
         "wires": [
             [
-                "a1cd2cc321c3cb11",
-                "7e55999e9d99a565",
-                "3e69fd046821caf3"
+                "a7226b89138448ab",
+                "be0d600b4586be0c",
+                "4582cfe6af0875eb"
             ]
         ]
     },
     {
-        "id": "4e6c69bdd8db9718",
+        "id": "680c18e9377d84fc",
         "type": "mqtt out",
-        "z": "630ff27b3317931f",
+        "z": "de00eae9dfa0e3da",
         "name": "Enviar orden",
         "topic": "camara/01/ventilacion",
         "qos": "0",
@@ -85,30 +85,30 @@
         "wires": []
     },
     {
-        "id": "3e69fd046821caf3",
+        "id": "be0d600b4586be0c",
         "type": "function",
-        "z": "630ff27b3317931f",
+        "z": "de00eae9dfa0e3da",
         "name": "Ventilación",
-        "func": "let co2 = msg.payload.co2;\nlet datos = flow.get(\"datos\") || {\"kilos\":10,\"m3\":8};\nlet kgs = datos.kilos || 10;\nlet m3 = datos.m3 || 8;\n\n// Umbrales\nlet CO2_BAJO = 800 * kgs * m3;\nlet CO2_ALTO = 1400 * kgs * m3;\n\n// Lógica\nif (co2 >= CO2_ALTO) {\n    return { payload: \"prender\" };\n} else if (co2 <= CO2_BAJO) {\n    return { payload: \"apagar\" };\n} else {\n    return null;\n}",
+        "func": "let co2 = msg.payload.co2;\nlet ultimoCo2 = 0\nlet datos = flow.get(\"datos\") || {\"kilos\":5000,\"m3\":8};\nlet kgs = datos.kilos || 10;\nlet m3 = datos.m3 || 8;\nlet ventilacion = flow.get(\"ventilacion\") || false;\n\n// Umbrales\nlet CO2_BAJO = 100;\nlet CO2_ALTO = 800;\n\n// Lógica\nif (co2 >= CO2_ALTO && !ventilacion) {\n    ventilacion = true;\n    msg.payload = \"prender\";\n    flow.set(\"ventilacion\", true);\n    return msg;\n} else if (co2 <= CO2_BAJO && ventilacion) {\n    ventilacion = false;\n    msg.payload = \"apagar\";\n    flow.set(\"ventilacion\", false);\n    return msg;\n}\n\nreturn null; ",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 730,
-        "y": 420,
+        "x": 830,
+        "y": 360,
         "wires": [
             [
-                "a1cd2cc321c3cb11",
-                "4e6c69bdd8db9718"
+                "4582cfe6af0875eb",
+                "680c18e9377d84fc"
             ]
         ]
     },
     {
-        "id": "7e55999e9d99a565",
+        "id": "a7226b89138448ab",
         "type": "influxdb out",
-        "z": "630ff27b3317931f",
+        "z": "de00eae9dfa0e3da",
         "influxdb": "ec4f1a47221a48c3",
         "name": "Guardar en Influx",
         "measurement": "sensores",
@@ -119,14 +119,14 @@
         "retentionPolicyV18Flux": "",
         "org": "organisation",
         "bucket": "bucket",
-        "x": 670,
-        "y": 180,
+        "x": 810,
+        "y": 220,
         "wires": []
     },
     {
-        "id": "a2fd56ebf4f21933",
+        "id": "aa2c1877510d880b",
         "type": "inject",
-        "z": "630ff27b3317931f",
+        "z": "de00eae9dfa0e3da",
         "name": "Crear DB telegraf",
         "props": [
             {
@@ -144,14 +144,14 @@
         "y": 60,
         "wires": [
             [
-                "eb46d92cfe98a5e3"
+                "cd3db968116eda56"
             ]
         ]
     },
     {
-        "id": "eb46d92cfe98a5e3",
+        "id": "cd3db968116eda56",
         "type": "http request",
-        "z": "630ff27b3317931f",
+        "z": "de00eae9dfa0e3da",
         "name": "",
         "method": "POST",
         "ret": "txt",
@@ -168,14 +168,14 @@
         "y": 60,
         "wires": [
             [
-                "a1cd2cc321c3cb11"
+                "4582cfe6af0875eb"
             ]
         ]
     },
     {
-        "id": "3f95d04ae79c39a6",
+        "id": "e48591f2fd7b26bd",
         "type": "mqtt out",
-        "z": "630ff27b3317931f",
+        "z": "de00eae9dfa0e3da",
         "name": "Enviar kg y m3",
         "topic": "",
         "qos": "0",
@@ -191,9 +191,9 @@
         "wires": []
     },
     {
-        "id": "c7cd0697ea9bb2be",
+        "id": "86920b014b0d8c1e",
         "type": "inject",
-        "z": "630ff27b3317931f",
+        "z": "de00eae9dfa0e3da",
         "name": "Definir kilos y m3",
         "props": [
             {
@@ -211,15 +211,15 @@
         "y": 520,
         "wires": [
             [
-                "2f5096a8bebcb831",
-                "2d3ba062c6247f02"
+                "6ec171155683011f",
+                "d581ea3387b73ed1"
             ]
         ]
     },
     {
-        "id": "2f5096a8bebcb831",
+        "id": "6ec171155683011f",
         "type": "function",
-        "z": "630ff27b3317931f",
+        "z": "de00eae9dfa0e3da",
         "name": "Datos Mock",
         "func": "let kilos = Number(msg.datos.kilos);\nlet m3 = Number(msg.datos.m3);\n\nlet msgs = [];\n\nif (!isNaN(kilos) && kilos > 0) {\n    msgs.push({\n        topic: \"camara/01/kilos\",\n        payload: kilos.toString()\n    });\n}\n\nif (!isNaN(m3) && m3 > 0) {\n    msgs.push({\n        topic: \"camara/01/m3\",\n        payload: m3.toString()\n    });\n}\n\nmsg.payload = msgs;\nreturn msg;",
         "outputs": 1,
@@ -232,14 +232,14 @@
         "y": 520,
         "wires": [
             [
-                "6d6071e0f32bff49"
+                "0771edcc3b1373bb"
             ]
         ]
     },
     {
-        "id": "6d6071e0f32bff49",
+        "id": "0771edcc3b1373bb",
         "type": "split",
-        "z": "630ff27b3317931f",
+        "z": "de00eae9dfa0e3da",
         "name": "Split",
         "splt": "\\n",
         "spltType": "str",
@@ -252,14 +252,14 @@
         "y": 620,
         "wires": [
             [
-                "ee1ef0efad7b9299"
+                "4cf6f76ff623117d"
             ]
         ]
     },
     {
-        "id": "62d9a68773a972e3",
+        "id": "13c34d8c46869e1e",
         "type": "debug",
-        "z": "630ff27b3317931f",
+        "z": "de00eae9dfa0e3da",
         "name": "Ver mensaje",
         "active": true,
         "tosidebar": true,
@@ -274,9 +274,9 @@
         "wires": []
     },
     {
-        "id": "2d3ba062c6247f02",
+        "id": "d581ea3387b73ed1",
         "type": "function",
-        "z": "630ff27b3317931f",
+        "z": "de00eae9dfa0e3da",
         "name": "Guardar datos",
         "func": "flow.set(\"datos\", msg.datos);\nreturn null;",
         "outputs": 1,
@@ -292,9 +292,9 @@
         ]
     },
     {
-        "id": "ee1ef0efad7b9299",
+        "id": "4cf6f76ff623117d",
         "type": "function",
-        "z": "630ff27b3317931f",
+        "z": "de00eae9dfa0e3da",
         "name": "Reasignar topic",
         "func": "msg.topic = msg.payload.topic;\nmsg.payload = msg.payload.payload;\nreturn msg;",
         "outputs": 1,
@@ -307,10 +307,95 @@
         "y": 520,
         "wires": [
             [
-                "3f95d04ae79c39a6",
-                "62d9a68773a972e3"
+                "e48591f2fd7b26bd",
+                "13c34d8c46869e1e"
             ]
         ]
+    },
+    {
+        "id": "33f48d298b2b8ba4",
+        "type": "inject",
+        "z": "de00eae9dfa0e3da",
+        "name": "",
+        "props": [
+            {
+                "p": "topic",
+                "vt": "str"
+            },
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "camara/01/ventilacion",
+        "payload": "prender",
+        "payloadType": "str",
+        "x": 500,
+        "y": 420,
+        "wires": [
+            [
+                "680c18e9377d84fc"
+            ]
+        ]
+    },
+    {
+        "id": "3309e4c5875cc7ad",
+        "type": "mqtt in",
+        "z": "de00eae9dfa0e3da",
+        "name": "Recibir estado ventilación",
+        "topic": "camara/01/estado_ventilacion",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "9228fce8f2bf299a",
+        "nl": false,
+        "rap": false,
+        "inputs": 0,
+        "x": 270,
+        "y": 180,
+        "wires": [
+            [
+                "0eb057c1a0bc4baf",
+                "4e2b8d60754125d5"
+            ]
+        ]
+    },
+    {
+        "id": "0eb057c1a0bc4baf",
+        "type": "function",
+        "z": "de00eae9dfa0e3da",
+        "name": "Guardar datos",
+        "func": "flow.set(\"ventilacion\", msg.payload);\nreturn null;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 520,
+        "y": 140,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "4e2b8d60754125d5",
+        "type": "debug",
+        "z": "de00eae9dfa0e3da",
+        "name": "Debug",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 490,
+        "y": 220,
+        "wires": []
     },
     {
         "id": "9228fce8f2bf299a",
