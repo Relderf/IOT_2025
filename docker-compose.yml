@@ -21,7 +21,6 @@ services:
       - "1880:1880"
     volumes:
       - ./nodered/data:/data
-      - ./nodered/config/flows.json:/data/flows.json
       - ./nodered/config/package.json:/data/package.json
       - /dev/snd:/dev/snd
     links:
