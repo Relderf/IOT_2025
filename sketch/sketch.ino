@@ -48,7 +48,7 @@ void checkMqttConnection() {
 }
 
 void publicarCO2Mqtt() {
-  mqttClient.publicarMqtt(co2Sensor.getCO2());
+  mqttClient.publicarCo2(co2Sensor.getCO2());
 }
 // ---------------------------------
 

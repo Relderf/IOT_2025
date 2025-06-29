@@ -2,7 +2,6 @@
 #include "CO2Sensor.h"
 #include "config.h"
 
-extern bool ventilacionActiva;
 extern CO2Sensor co2Sensor;
 
 static float ultimoCO2Enviado = -1000;
@@ -57,11 +56,11 @@ void MqttClient::callback(char* topic, byte* payload, unsigned int length) {
 
     if (String(topic) == "camara/" + String(CAMARA_ID) + "/ventilacion") {
         if (comando == "prender") {
-            ventilacionActiva = true;
             co2Sensor.setVentilacion(true);
+            publicarEstadoVentilacion();
         } else if (comando == "apagar") {
-            ventilacionActiva = false;
             co2Sensor.setVentilacion(false);
+            publicarEstadoVentilacion();
         }
     } else if (String(topic) == "camara/" + String(CAMARA_ID) + "/kilos") {
         co2Sensor.setPapasNormales(comando.toFloat());
@@ -70,7 +69,7 @@ void MqttClient::callback(char* topic, byte* payload, unsigned int length) {
     }
 }
 
-void MqttClient::publicarMqtt(float co2) {
+void MqttClient::publicarCo2(float co2) {
     if ((millis() - ultimoPushMqtt) > MQTT_INTERVALO_PUSH) {
         if (co2 != ultimoCO2Enviado) {
             char mensajeMqtt[MSG_MAX_LENGTH];
@@ -80,4 +79,10 @@ void MqttClient::publicarMqtt(float co2) {
         }
         ultimoPushMqtt = millis();
     }
+}
+
+void MqttClient::publicarEstadoVentilacion() {
+    char mensajeMqtt[MSG_MAX_LENGTH];
+    snprintf(mensajeMqtt, MSG_MAX_LENGTH, "{\"ventilacion\":%s}", co2Sensor.getVentilacion() ? "true" : "false");
+    pubSubClient.publish(("camara/" + String(CAMARA_ID) + "/estado_ventilacion").c_str(), mensajeMqtt);
 }

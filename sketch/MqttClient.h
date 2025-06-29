@@ -7,7 +7,7 @@
 class MqttClient {
 private:
     PubSubClient pubSubClient;
-
+    void publicarEstadoVentilacion();
 public:
     MqttClient(WiFiClient& clienteWifi);
     void init(const char* mqttAddress, uint16_t mqttPort);
@@ -16,7 +16,8 @@ public:
     void loop();
     void publish(const char* topic, const char* payload);
     void callback(char* topic, byte* payload, unsigned int length);
-    void publicarMqtt(float co2);
+    void publicarCo2(float co2);
+
 };
 
 #endif //MQTTCLIENT_H
