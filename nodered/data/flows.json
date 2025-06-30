@@ -8,6 +8,52 @@
         "env": []
     },
     {
+        "id": "9228fce8f2bf299a",
+        "type": "mqtt-broker",
+        "name": "Broker MQTT (Mosquitto)",
+        "broker": "mqtt",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "ec4f1a47221a48c3",
+        "type": "influxdb",
+        "hostname": "influxdb",
+        "port": 8086,
+        "protocol": "http",
+        "database": "iot2025_tp_final",
+        "name": "DB Local (InfluxDB)",
+        "usetls": false,
+        "tls": "",
+        "influxdbVersion": "1.x",
+        "url": "http://localhost:8086",
+        "timeout": 10,
+        "rejectUnauthorized": true
+    },
+    {
         "id": "0200124cafdec0b4",
         "type": "mqtt in",
         "z": "de00eae9dfa0e3da",
@@ -19,8 +65,8 @@
         "nl": false,
         "rap": false,
         "inputs": 0,
-        "x": 310,
-        "y": 300,
+        "x": 90,
+        "y": 240,
         "wires": [
             [
                 "7847943e04c7fb71"
@@ -40,7 +86,7 @@
         "targetType": "full",
         "statusVal": "",
         "statusType": "auto",
-        "x": 1070,
+        "x": 1090,
         "y": 300,
         "wires": []
     },
@@ -106,28 +152,10 @@
         ]
     },
     {
-        "id": "a7226b89138448ab",
-        "type": "influxdb out",
-        "z": "de00eae9dfa0e3da",
-        "influxdb": "ec4f1a47221a48c3",
-        "name": "Guardar en Influx",
-        "measurement": "sensores",
-        "precision": "",
-        "retentionPolicy": "",
-        "database": "database",
-        "precisionV18FluxV20": "ms",
-        "retentionPolicyV18Flux": "",
-        "org": "organisation",
-        "bucket": "bucket",
-        "x": 810,
-        "y": 220,
-        "wires": []
-    },
-    {
         "id": "aa2c1877510d880b",
         "type": "inject",
         "z": "de00eae9dfa0e3da",
-        "name": "Crear DB telegraf",
+        "name": "Setup inicial",
         "props": [
             {
                 "p": "payload"
@@ -140,11 +168,11 @@
         "topic": "",
         "payload": "",
         "payloadType": "str",
-        "x": 530,
-        "y": 60,
+        "x": 110,
+        "y": 40,
         "wires": [
             [
-                "cd3db968116eda56"
+                "342801d0599a1410"
             ]
         ]
     },
@@ -152,25 +180,34 @@
         "id": "cd3db968116eda56",
         "type": "http request",
         "z": "de00eae9dfa0e3da",
-        "name": "",
+        "name": "Crear BD Local",
         "method": "POST",
-        "ret": "txt",
+        "ret": "obj",
         "paytoqs": "ignore",
-        "url": "http://TrabergTau:TauTraberg@influxdb:8086/query?q=CREATE DATABASE telegraf",
+        "url": "http://influxdb:8086/query",
         "tls": "",
         "persist": false,
         "proxy": "",
         "insecureHTTPParser": false,
         "authType": "",
         "senderr": false,
-        "headers": [],
-        "x": 830,
-        "y": 60,
+        "headers": [
+            {
+                "keyType": "Content-Type",
+                "keyValue": "",
+                "valueType": "other",
+                "valueValue": "application/x-www-form-urlencoded"
+            }
+        ],
+        "x": 460,
+        "y": 40,
         "wires": [
             [
-                "4582cfe6af0875eb"
+                "19dbd4ab5c80d523"
             ]
-        ]
+        ],
+        "icon": "node-red/db.svg",
+        "info": "Crea la BD \"iot2025_tp_final\" en InfluxDB."
     },
     {
         "id": "e48591f2fd7b26bd",
@@ -207,8 +244,8 @@
         "once": false,
         "onceDelay": 0.1,
         "topic": "",
-        "x": 340,
-        "y": 520,
+        "x": 120,
+        "y": 460,
         "wires": [
             [
                 "6ec171155683011f",
@@ -333,7 +370,7 @@
         "topic": "camara/01/ventilacion",
         "payload": "prender",
         "payloadType": "str",
-        "x": 500,
+        "x": 160,
         "y": 420,
         "wires": [
             [
@@ -345,7 +382,7 @@
         "id": "3309e4c5875cc7ad",
         "type": "mqtt in",
         "z": "de00eae9dfa0e3da",
-        "name": "Recibir estado ventilación",
+        "name": "Recibir Estado Ventilación",
         "topic": "camara/01/estado_ventilacion",
         "qos": "0",
         "datatype": "auto-detect",
@@ -353,7 +390,7 @@
         "nl": false,
         "rap": false,
         "inputs": 0,
-        "x": 350,
+        "x": 130,
         "y": 180,
         "wires": [
             [
@@ -398,49 +435,78 @@
         "wires": []
     },
     {
-        "id": "9228fce8f2bf299a",
-        "type": "mqtt-broker",
-        "name": "Broker MQTT Contenedor",
-        "broker": "192.168.0.160",
-        "port": 1883,
-        "clientid": "",
-        "autoConnect": true,
-        "usetls": false,
-        "protocolVersion": 4,
-        "keepalive": 60,
-        "cleansession": true,
-        "autoUnsubscribe": true,
-        "birthTopic": "",
-        "birthQos": "0",
-        "birthRetain": "false",
-        "birthPayload": "",
-        "birthMsg": {},
-        "closeTopic": "",
-        "closeQos": "0",
-        "closeRetain": "false",
-        "closePayload": "",
-        "closeMsg": {},
-        "willTopic": "",
-        "willQos": "0",
-        "willRetain": "false",
-        "willPayload": "",
-        "willMsg": {},
-        "userProps": "",
-        "sessionExpiry": ""
+        "id": "a7226b89138448ab",
+        "type": "influxdb out",
+        "z": "de00eae9dfa0e3da",
+        "influxdb": "ec4f1a47221a48c3",
+        "name": "Guardar en Influx",
+        "measurement": "sensores",
+        "precision": "",
+        "retentionPolicy": "",
+        "database": "database",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "organisation",
+        "bucket": "bucket",
+        "x": 810,
+        "y": 220,
+        "wires": []
     },
     {
-        "id": "ec4f1a47221a48c3",
-        "type": "influxdb",
-        "hostname": "influxdb",
-        "port": 8086,
-        "protocol": "http",
-        "database": "telegraf",
-        "name": "Influx Local",
-        "usetls": false,
-        "tls": "",
-        "influxdbVersion": "1.x",
-        "url": "http://localhost:8086",
-        "timeout": 10,
-        "rejectUnauthorized": true
+        "id": "19dbd4ab5c80d523",
+        "type": "function",
+        "z": "de00eae9dfa0e3da",
+        "name": "Resultado Creación BD",
+        "func": "if (msg.statusCode === 200) {\n    msg.payload = \"BD creada con éxito.\";\n} else {\n    msg.payload = `Error al crear BD: código ${msg.statusCode}.`;\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 670,
+        "y": 40,
+        "wires": [
+            [
+                "fc22d69a66708635"
+            ]
+        ]
+    },
+    {
+        "id": "fc22d69a66708635",
+        "type": "debug",
+        "z": "de00eae9dfa0e3da",
+        "name": "Debug Resultado Creación BD",
+        "active": true,
+        "tosidebar": false,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 930,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "342801d0599a1410",
+        "type": "function",
+        "z": "de00eae9dfa0e3da",
+        "name": "Parámetros BD",
+        "func": "msg.payload = {\n    \"q\": \"CREATE DATABASE iot2025_tp_final\",\n    \"u\": \"TrabergTau\",\n    \"p\": \"TauTraberg\"\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 280,
+        "y": 40,
+        "wires": [
+            [
+                "cd3db968116eda56"
+            ]
+        ]
     }
 ]
