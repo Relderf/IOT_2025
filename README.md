@@ -83,13 +83,15 @@ IOT_2025/
 
 ---
 
-## Contenedor
+## Contenedores
 
 - Basado en: https://gitlab.com/dgraselli/stack-nodered-mqtt/-/tree/master
 - Para levantar contenedores:
 ```shell
 docker compose up -d
 ```
+Una vez levantado los contenedores, ingresar a NodeRed (http://localhost:1880/) e instalar la paleta "node-red-contrib-influxdb".
+
 - Para crear la BD en Influx:
 ```shell
 docker exec -it iot_2025-influxdb-1 influx -execute "create database iot2025_tp_final"

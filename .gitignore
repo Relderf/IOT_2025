@@ -2,5 +2,7 @@ sketch/env.h
 .idea/
 .vscode
 mosquitto/data/
-nodered/data/
+nodered/data/*
+!nodered/data/
+!nodered/data/flows.json
 grafana/data/
