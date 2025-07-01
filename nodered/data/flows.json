@@ -185,7 +185,7 @@
         "id": "e48591f2fd7b26bd",
         "type": "mqtt out",
         "z": "de00eae9dfa0e3da",
-        "name": "Enviar kg y m3",
+        "name": "Publicar KG o M3",
         "topic": "",
         "qos": "0",
         "retain": "false",
@@ -195,131 +195,9 @@
         "correl": "",
         "expiry": "",
         "broker": "9228fce8f2bf299a",
-        "x": 1060,
-        "y": 520,
+        "x": 870,
+        "y": 240,
         "wires": []
-    },
-    {
-        "id": "86920b014b0d8c1e",
-        "type": "inject",
-        "z": "de00eae9dfa0e3da",
-        "name": "Definir kilos y m3",
-        "props": [
-            {
-                "p": "datos",
-                "v": "{\"kilos\":10,\"m3\":8}",
-                "vt": "json"
-            }
-        ],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "x": 120,
-        "y": 520,
-        "wires": [
-            [
-                "6ec171155683011f",
-                "d581ea3387b73ed1"
-            ]
-        ]
-    },
-    {
-        "id": "6ec171155683011f",
-        "type": "function",
-        "z": "de00eae9dfa0e3da",
-        "name": "Datos Mock",
-        "func": "let kilos = Number(msg.datos.kilos);\nlet m3 = Number(msg.datos.m3);\n\nlet msgs = [];\n\nif (!isNaN(kilos) && kilos > 0) {\n    msgs.push({\n        topic: \"camara/01/kilos\",\n        payload: kilos.toString()\n    });\n}\n\nif (!isNaN(m3) && m3 > 0) {\n    msgs.push({\n        topic: \"camara/01/m3\",\n        payload: m3.toString()\n    });\n}\n\nmsg.payload = msgs;\nreturn msg;",
-        "outputs": 1,
-        "timeout": "",
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 570,
-        "y": 520,
-        "wires": [
-            [
-                "0771edcc3b1373bb"
-            ]
-        ]
-    },
-    {
-        "id": "0771edcc3b1373bb",
-        "type": "split",
-        "z": "de00eae9dfa0e3da",
-        "name": "Split",
-        "splt": "\\n",
-        "spltType": "str",
-        "arraySplt": 1,
-        "arraySpltType": "len",
-        "stream": false,
-        "addname": "",
-        "property": "payload",
-        "x": 690,
-        "y": 620,
-        "wires": [
-            [
-                "4cf6f76ff623117d"
-            ]
-        ]
-    },
-    {
-        "id": "13c34d8c46869e1e",
-        "type": "debug",
-        "z": "de00eae9dfa0e3da",
-        "name": "Ver mensaje",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "true",
-        "targetType": "full",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 1050,
-        "y": 620,
-        "wires": []
-    },
-    {
-        "id": "d581ea3387b73ed1",
-        "type": "function",
-        "z": "de00eae9dfa0e3da",
-        "name": "Guardar datos",
-        "func": "flow.set(\"datos\", msg.datos);\nreturn null;",
-        "outputs": 1,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 480,
-        "y": 620,
-        "wires": [
-            []
-        ]
-    },
-    {
-        "id": "4cf6f76ff623117d",
-        "type": "function",
-        "z": "de00eae9dfa0e3da",
-        "name": "Reasignar topic",
-        "func": "msg.topic = msg.payload.topic;\nmsg.payload = msg.payload.payload;\nreturn msg;",
-        "outputs": 1,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 820,
-        "y": 520,
-        "wires": [
-            [
-                "e48591f2fd7b26bd",
-                "13c34d8c46869e1e"
-            ]
-        ]
     },
     {
         "id": "3309e4c5875cc7ad",
@@ -409,7 +287,9 @@
             "3b3da82fdb207329",
             "10dc714d545dc6c3",
             "dc80e5d852c81c98",
-            "cdfc30c8eea567a8"
+            "cdfc30c8eea567a8",
+            "ce82a17cde9f3c8d",
+            "ac33f71bc52177bc"
         ],
         "x": 825,
         "y": 40,
@@ -596,5 +476,131 @@
                 "680c18e9377d84fc"
             ]
         ]
+    },
+    {
+        "id": "1fc26e7871dfc676",
+        "type": "inject",
+        "z": "de00eae9dfa0e3da",
+        "name": "Setear KG",
+        "props": [
+            {
+                "p": "topic",
+                "vt": "str"
+            },
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "camara/01/kilos",
+        "payload": "5000",
+        "payloadType": "num",
+        "x": 680,
+        "y": 200,
+        "wires": [
+            [
+                "87e762da319c5bce",
+                "e48591f2fd7b26bd"
+            ]
+        ]
+    },
+    {
+        "id": "62c99f6c545b0067",
+        "type": "inject",
+        "z": "de00eae9dfa0e3da",
+        "name": "Setear M3",
+        "props": [
+            {
+                "p": "topic",
+                "vt": "str"
+            },
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "camara/01/m3",
+        "payload": "8",
+        "payloadType": "num",
+        "x": 680,
+        "y": 280,
+        "wires": [
+            [
+                "aff3d32c7216e5c6",
+                "e48591f2fd7b26bd"
+            ]
+        ]
+    },
+    {
+        "id": "87e762da319c5bce",
+        "type": "function",
+        "z": "de00eae9dfa0e3da",
+        "name": "Guardar KG en Contexto",
+        "func": "const kg = parseFloat(msg.payload) || 0;\nflow.set(\"kg\", kg);\nmsg.payload = `KG = ${kg}.`;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 870,
+        "y": 180,
+        "wires": [
+            [
+                "ce82a17cde9f3c8d"
+            ]
+        ]
+    },
+    {
+        "id": "ce82a17cde9f3c8d",
+        "type": "link out",
+        "z": "de00eae9dfa0e3da",
+        "name": "link out 1",
+        "mode": "link",
+        "links": [
+            "a50a629da48ed0bf"
+        ],
+        "x": 1015,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "aff3d32c7216e5c6",
+        "type": "function",
+        "z": "de00eae9dfa0e3da",
+        "name": "Guardar M3 en Contexto",
+        "func": "const m3 = parseFloat(msg.payload) || 1;\nflow.set(\"m3\", m3);\nmsg.payload = `M3 = ${m3}.`;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 870,
+        "y": 300,
+        "wires": [
+            [
+                "ac33f71bc52177bc"
+            ]
+        ]
+    },
+    {
+        "id": "ac33f71bc52177bc",
+        "type": "link out",
+        "z": "de00eae9dfa0e3da",
+        "name": "link out 2",
+        "mode": "link",
+        "links": [
+            "a50a629da48ed0bf"
+        ],
+        "x": 1015,
+        "y": 300,
+        "wires": []
     }
 ]
