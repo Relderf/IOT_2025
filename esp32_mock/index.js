@@ -3,9 +3,9 @@ const brokerUrl = 'mqtt://localhost:1883';
 const client = mqtt.connect(brokerUrl);
 
 /** Cantidad promedio de PPM de CO₂ que genera 1KG de papa sana en 1 hora en una sala hermética de 1M3. */
-const CO2_PPM_KG_H_PAPA_SANA = (11 / 3_600) * 10_000; // Real: 11PPM/1H = 11PPM/3600S --> Aumentado x10.000.
+const CO2_PPM_KG_S_PAPA_SANA = (11 / 3_600) * 2; // Real: 11PPM/1H = 11PPM/3600S --> Aumentado x10.000.
 /** Cantidad promedio de PPM de CO₂ que genera 1KG de papa podrida en 1 hora en una sala hermética de 1M3. */
-const CO2_PPM_KG_H_PAPA_PODRIDA = (65 / 3_600) * 10_000; // Real: 65PPM/1H = 65PPM/3600S --> Aumentado x10.000.
+const CO2_PPM_KG_S_PAPA_PODRIDA = (65 / 3_600) * 2; // Real: 65PPM/1H = 65PPM/3600S --> Aumentado x10.000.
 /** Porcentaje de papa sana que se pudre en 1 segundo. */
 const KG_PAPA_PODRIDOS_POR_S = (100 / 720 / 3_600) * 2; // Real: 100%/720H/3600S (720H en pudrirse 100%) --> Aumentado x2
 /** Cantidad de PPM de CO₂ ventilados en 1 segundo. */
@@ -19,8 +19,8 @@ let ventilacionPrendida = false;
 
 function startMock() {
     const LOOP_MS = 1_000;
-    const CO2_PAPA_SANA_LOOP = CO2_PPM_KG_H_PAPA_SANA / M3 / 3_600 / 1_000 * LOOP_MS;
-    const CO2_PAPA_PODRIDA_LOOP = CO2_PPM_KG_H_PAPA_PODRIDA / M3 / 3_600 / 1_000 * LOOP_MS;
+    const CO2_PAPA_SANA_LOOP = CO2_PPM_KG_S_PAPA_SANA / M3 / 1_000 * LOOP_MS;
+    const CO2_PAPA_PODRIDA_LOOP = CO2_PPM_KG_S_PAPA_PODRIDA / M3 / 1_000 * LOOP_MS;
     const PPM_VENTILADOS_LOOP = PPM_VENTILADOS_S / 1_000 * LOOP_MS;
 
     let kgPapasSanas = KG_PAPAS_INICIAL;
@@ -36,7 +36,9 @@ function startMock() {
         console.log(`\tCO2: ${co2_to_publish}`);
         console.log('---')
         client.publish("camara/01/co2", JSON.stringify({
-            co2: co2_to_publish
+            co2: co2_to_publish,
+            sanas: parseFloat(kgPapasSanas.toFixed(2)),
+            podridas: parseFloat(kgPapasPodridas.toFixed(2))
         }), {qos: 0}, (err) => {
             if (err) {
                 console.error(`Error al publicar CO2:`, err);
