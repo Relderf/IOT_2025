@@ -70,8 +70,7 @@
         "wires": [
             [
                 "cdfc30c8eea567a8",
-                "a7226b89138448ab",
-                "be0d600b4586be0c"
+                "ced2059252f028db"
             ]
         ]
     },
@@ -89,7 +88,7 @@
         "correl": "",
         "expiry": "",
         "broker": "9228fce8f2bf299a",
-        "x": 640,
+        "x": 760,
         "y": 360,
         "wires": []
     },
@@ -105,7 +104,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 370,
+        "x": 510,
         "y": 360,
         "wires": [
             [
@@ -254,8 +253,8 @@
         "retentionPolicyV18Flux": "",
         "org": "organisation",
         "bucket": "bucket",
-        "x": 370,
-        "y": 320,
+        "x": 490,
+        "y": 300,
         "wires": []
     },
     {
@@ -440,7 +439,7 @@
         "y": 420,
         "wires": [
             [
-                "be0d600b4586be0c"
+                "ced2059252f028db"
             ]
         ]
     },
@@ -454,7 +453,7 @@
             "a50a629da48ed0bf"
         ],
         "x": 215,
-        "y": 320,
+        "y": 300,
         "wires": []
     },
     {
@@ -602,5 +601,48 @@
         "x": 1015,
         "y": 300,
         "wires": []
+    },
+    {
+        "id": "0b40662ff96305cc",
+        "type": "influxdb out",
+        "z": "de00eae9dfa0e3da",
+        "influxdb": "ec4f1a47221a48c3",
+        "name": "Persistir Kg Podridos",
+        "measurement": "podridas",
+        "precision": "",
+        "retentionPolicy": "",
+        "database": "database",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "organisation",
+        "bucket": "bucket",
+        "x": 520,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "ced2059252f028db",
+        "type": "function",
+        "z": "de00eae9dfa0e3da",
+        "name": "Calcular KG Podridos",
+        "func": "const kgPapaPodrida = parseFloat(msg.payload.podridas) || 0; // Esto es un Mock.\nif (kgPapaPodrida !== 0) {\n    flow.set(\"kgPapaPodrida\", kgPapaPodrida);\n}\ndelete msg.payload.podridas;\n\nconst kgPapaSana = parseFloat(msg.payload.sanas) || 0; // Esto es un Mock.\nif (kgPapaSana !== 0) {\n    flow.set(\"kgPapaSana\", kgPapaSana);\n}\ndelete msg.payload.sanas;\n\nreturn [\n    msg,\n    { payload: kgPapaPodrida },\n    { payload: kgPapaSana }\n];\n",
+        "outputs": 3,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 300,
+        "y": 360,
+        "wires": [
+            [
+                "a7226b89138448ab",
+                "be0d600b4586be0c"
+            ],
+            [
+                "0b40662ff96305cc"
+            ],
+            []
+        ]
     }
 ]
