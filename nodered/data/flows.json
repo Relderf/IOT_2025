@@ -66,49 +66,12 @@
         "rap": false,
         "inputs": 0,
         "x": 90,
-        "y": 240,
+        "y": 360,
         "wires": [
             [
-                "7847943e04c7fb71"
-            ]
-        ]
-    },
-    {
-        "id": "4582cfe6af0875eb",
-        "type": "debug",
-        "z": "de00eae9dfa0e3da",
-        "name": "Debug",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "true",
-        "targetType": "full",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 1090,
-        "y": 300,
-        "wires": []
-    },
-    {
-        "id": "7847943e04c7fb71",
-        "type": "function",
-        "z": "de00eae9dfa0e3da",
-        "name": "JSON",
-        "func": "msg.topic = \"camara/01/co2\";\n\nif (typeof msg.payload === \"string\") {\n    try {\n        msg.payload = JSON.parse(msg.payload);\n    } catch (e) {\n        node.warn(\"Error al parsear JSON: \" + e.message);\n        return null;\n    }\n}\nreturn msg;",
-        "outputs": 1,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 590,
-        "y": 300,
-        "wires": [
-            [
+                "cdfc30c8eea567a8",
                 "a7226b89138448ab",
-                "be0d600b4586be0c",
-                "4582cfe6af0875eb"
+                "be0d600b4586be0c"
             ]
         ]
     },
@@ -116,7 +79,7 @@
         "id": "680c18e9377d84fc",
         "type": "mqtt out",
         "z": "de00eae9dfa0e3da",
-        "name": "Enviar orden",
+        "name": "Publicar Comando de Ventilación",
         "topic": "camara/01/ventilacion",
         "qos": "0",
         "retain": "false",
@@ -126,27 +89,26 @@
         "correl": "",
         "expiry": "",
         "broker": "9228fce8f2bf299a",
-        "x": 1070,
-        "y": 420,
+        "x": 640,
+        "y": 360,
         "wires": []
     },
     {
         "id": "be0d600b4586be0c",
         "type": "function",
         "z": "de00eae9dfa0e3da",
-        "name": "Ventilación",
-        "func": "let co2 = msg.payload.co2;\nlet ultimoCo2 = 0\nlet datos = flow.get(\"datos\") || {\"kilos\":5000,\"m3\":8};\nlet kgs = datos.kilos || 10;\nlet m3 = datos.m3 || 8;\nlet ventilacion = flow.get(\"ventilacion\") || false;\n\n// Umbrales\nlet CO2_BAJO = 100;\nlet CO2_ALTO = 800;\n\n// Lógica\nif (co2 >= CO2_ALTO && !ventilacion) {\n    ventilacion = true;\n    msg.payload = \"prender\";\n    flow.set(\"ventilacion\", true);\n    return msg;\n} else if (co2 <= CO2_BAJO && ventilacion) {\n    ventilacion = false;\n    msg.payload = \"apagar\";\n    flow.set(\"ventilacion\", false);\n    return msg;\n}\n\nreturn null; ",
+        "name": "Ventilar CO2",
+        "func": "const CO2_BAJO = 200;\nconst CO2_ALTO = 800;\n\nconst co2 = parseFloat(msg.payload.co2);\nconst ventilacionEncendida = flow.get(\"ventilacionEncendida\") || false;\n\nif (co2 >= CO2_ALTO && !ventilacionEncendida) {\n    msg.payload = \"prender\";\n    flow.set(\"ventilacionEncendida\", true);\n    return msg;\n}\n\nif (co2 <= CO2_BAJO && ventilacionEncendida) {\n    msg.payload = \"apagar\";\n    flow.set(\"ventilacionEncendida\", false);\n    return msg;\n}\n\nreturn null; ",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 830,
+        "x": 370,
         "y": 360,
         "wires": [
             [
-                "4582cfe6af0875eb",
                 "680c18e9377d84fc"
             ]
         ]
@@ -158,7 +120,19 @@
         "name": "Setup inicial",
         "props": [
             {
-                "p": "payload"
+                "p": "payload.q",
+                "v": "CREATE DATABASE iot2025_tp_final",
+                "vt": "str"
+            },
+            {
+                "p": "payload.u",
+                "v": "TrabergTau",
+                "vt": "str"
+            },
+            {
+                "p": "payload.p",
+                "v": "TauTraberg",
+                "vt": "str"
             }
         ],
         "repeat": "",
@@ -166,13 +140,11 @@
         "once": true,
         "onceDelay": "1",
         "topic": "",
-        "payload": "",
-        "payloadType": "str",
         "x": 110,
         "y": 40,
         "wires": [
             [
-                "342801d0599a1410"
+                "cd3db968116eda56"
             ]
         ]
     },
@@ -199,7 +171,7 @@
                 "valueValue": "application/x-www-form-urlencoded"
             }
         ],
-        "x": 460,
+        "x": 300,
         "y": 40,
         "wires": [
             [
@@ -245,7 +217,7 @@
         "onceDelay": 0.1,
         "topic": "",
         "x": 120,
-        "y": 460,
+        "y": 520,
         "wires": [
             [
                 "6ec171155683011f",
@@ -350,35 +322,6 @@
         ]
     },
     {
-        "id": "33f48d298b2b8ba4",
-        "type": "inject",
-        "z": "de00eae9dfa0e3da",
-        "name": "",
-        "props": [
-            {
-                "p": "topic",
-                "vt": "str"
-            },
-            {
-                "p": "payload"
-            }
-        ],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "camara/01/ventilacion",
-        "payload": "prender",
-        "payloadType": "str",
-        "x": 160,
-        "y": 420,
-        "wires": [
-            [
-                "680c18e9377d84fc"
-            ]
-        ]
-    },
-    {
         "id": "3309e4c5875cc7ad",
         "type": "mqtt in",
         "z": "de00eae9dfa0e3da",
@@ -391,11 +334,11 @@
         "rap": false,
         "inputs": 0,
         "x": 130,
-        "y": 180,
+        "y": 140,
         "wires": [
             [
                 "0eb057c1a0bc4baf",
-                "4e2b8d60754125d5"
+                "dc80e5d852c81c98"
             ]
         ]
     },
@@ -403,44 +346,29 @@
         "id": "0eb057c1a0bc4baf",
         "type": "function",
         "z": "de00eae9dfa0e3da",
-        "name": "Guardar datos",
-        "func": "flow.set(\"ventilacion\", msg.payload);\nreturn null;",
+        "name": "Guardar Estado en Contexto",
+        "func": "const ventilacionEncendida = msg.payload.ventilacion || false;\nflow.set(\"ventilacionEncendida\", ventilacionEncendida);\nmsg.payload = `Ventilación ${ventilacionEncendida && \"ON\" || \"OFF\"}.`;\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 620,
+        "x": 420,
         "y": 140,
         "wires": [
-            []
+            [
+                "10dc714d545dc6c3"
+            ]
         ]
-    },
-    {
-        "id": "4e2b8d60754125d5",
-        "type": "debug",
-        "z": "de00eae9dfa0e3da",
-        "name": "Debug",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "true",
-        "targetType": "full",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 570,
-        "y": 220,
-        "wires": []
     },
     {
         "id": "a7226b89138448ab",
         "type": "influxdb out",
         "z": "de00eae9dfa0e3da",
         "influxdb": "ec4f1a47221a48c3",
-        "name": "Guardar en Influx",
-        "measurement": "sensores",
+        "name": "Persistir CO2",
+        "measurement": "co2",
         "precision": "",
         "retentionPolicy": "",
         "database": "database",
@@ -448,8 +376,8 @@
         "retentionPolicyV18Flux": "",
         "org": "organisation",
         "bucket": "bucket",
-        "x": 810,
-        "y": 220,
+        "x": 370,
+        "y": 320,
         "wires": []
     },
     {
@@ -464,48 +392,208 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 670,
+        "x": 530,
         "y": 40,
         "wires": [
             [
-                "fc22d69a66708635"
+                "3b3da82fdb207329"
             ]
         ]
     },
     {
-        "id": "fc22d69a66708635",
+        "id": "a50a629da48ed0bf",
+        "type": "link in",
+        "z": "de00eae9dfa0e3da",
+        "name": "link in 1",
+        "links": [
+            "3b3da82fdb207329",
+            "10dc714d545dc6c3",
+            "dc80e5d852c81c98",
+            "cdfc30c8eea567a8"
+        ],
+        "x": 825,
+        "y": 40,
+        "wires": [
+            [
+                "a82b876d5818d173"
+            ]
+        ]
+    },
+    {
+        "id": "a82b876d5818d173",
         "type": "debug",
         "z": "de00eae9dfa0e3da",
-        "name": "Debug Resultado Creación BD",
+        "name": "Debug Payload",
         "active": true,
-        "tosidebar": false,
+        "tosidebar": true,
         "console": false,
-        "tostatus": true,
+        "tostatus": false,
         "complete": "payload",
         "targetType": "msg",
-        "statusVal": "payload",
+        "statusVal": "",
         "statusType": "auto",
-        "x": 930,
+        "x": 940,
         "y": 40,
         "wires": []
     },
     {
-        "id": "342801d0599a1410",
+        "id": "3b3da82fdb207329",
+        "type": "link out",
+        "z": "de00eae9dfa0e3da",
+        "name": "Debug",
+        "mode": "link",
+        "links": [
+            "a50a629da48ed0bf"
+        ],
+        "x": 675,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "10dc714d545dc6c3",
+        "type": "link out",
+        "z": "de00eae9dfa0e3da",
+        "name": "Debug",
+        "mode": "link",
+        "links": [
+            "a50a629da48ed0bf"
+        ],
+        "x": 575,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "dc80e5d852c81c98",
+        "type": "link out",
+        "z": "de00eae9dfa0e3da",
+        "name": "Debug",
+        "mode": "link",
+        "links": [
+            "a50a629da48ed0bf"
+        ],
+        "x": 295,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "2b6b2d1fa7c17a31",
+        "type": "inject",
+        "z": "de00eae9dfa0e3da",
+        "name": "Prender Ventilación",
+        "props": [
+            {
+                "p": "topic",
+                "vt": "str"
+            },
+            {
+                "p": "payload.ventilacion",
+                "v": "true",
+                "vt": "bool"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "camara/01/estado_ventilacion",
+        "x": 130,
+        "y": 200,
+        "wires": [
+            [
+                "0eb057c1a0bc4baf",
+                "776a538f493fe84f"
+            ]
+        ]
+    },
+    {
+        "id": "427bb80304085fce",
+        "type": "inject",
+        "z": "de00eae9dfa0e3da",
+        "name": "Apagar Ventilación",
+        "props": [
+            {
+                "p": "topic",
+                "vt": "str"
+            },
+            {
+                "p": "payload.ventilacion",
+                "v": "false",
+                "vt": "bool"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "camara/01/estado_ventilacion",
+        "x": 130,
+        "y": 240,
+        "wires": [
+            [
+                "0eb057c1a0bc4baf",
+                "776a538f493fe84f"
+            ]
+        ]
+    },
+    {
+        "id": "c891f045a301b6a1",
+        "type": "inject",
+        "z": "de00eae9dfa0e3da",
+        "name": "Inyectar CO2",
+        "props": [
+            {
+                "p": "topic",
+                "vt": "str"
+            },
+            {
+                "p": "payload.co2",
+                "v": "34.5",
+                "vt": "num"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "camara/01/co2",
+        "x": 110,
+        "y": 420,
+        "wires": [
+            [
+                "be0d600b4586be0c"
+            ]
+        ]
+    },
+    {
+        "id": "cdfc30c8eea567a8",
+        "type": "link out",
+        "z": "de00eae9dfa0e3da",
+        "name": "Debug",
+        "mode": "link",
+        "links": [
+            "a50a629da48ed0bf"
+        ],
+        "x": 215,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "776a538f493fe84f",
         "type": "function",
         "z": "de00eae9dfa0e3da",
-        "name": "Parámetros BD",
-        "func": "msg.payload = {\n    \"q\": \"CREATE DATABASE iot2025_tp_final\",\n    \"u\": \"TrabergTau\",\n    \"p\": \"TauTraberg\"\n};\nreturn msg;",
+        "name": "Covertir Estado en Comando",
+        "func": "const ventilacionEncendida = msg.payload.ventilacion || false;\nmsg.payload = ventilacionEncendida && \"prender\" || \"apagar\";\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 280,
-        "y": 40,
+        "x": 420,
+        "y": 220,
         "wires": [
             [
-                "cd3db968116eda56"
+                "680c18e9377d84fc"
             ]
         ]
     }
