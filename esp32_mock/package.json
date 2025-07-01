@@ -1,0 +1,14 @@
+{
+  "name": "esp32_mock",
+  "version": "1.0.0",
+  "description": "ESP32 Mock",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "Martin Tau",
+  "license": "ISC",
+  "dependencies": {
+    "mqtt": "^5.13.1"
+  }
+}
