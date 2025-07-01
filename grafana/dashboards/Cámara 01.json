@@ -359,7 +359,7 @@
               "type": "fill"
             }
           ],
-          "measurement": "co2",
+          "measurement": "podridas",
           "orderByTime": "ASC",
           "policy": "default",
           "refId": "A",
@@ -368,7 +368,7 @@
             [
               {
                 "params": [
-                  "podridas"
+                  "value"
                 ],
                 "type": "field"
               },
@@ -446,7 +446,7 @@
               "type": "fill"
             }
           ],
-          "measurement": "co2",
+          "measurement": "podridas",
           "orderByTime": "ASC",
           "policy": "default",
           "refId": "A",
@@ -455,7 +455,7 @@
             [
               {
                 "params": [
-                  "podridas"
+                  "value"
                 ],
                 "type": "field"
               },
