@@ -2,10 +2,9 @@ apiVersion: 1
 
 providers:
   - name: "Cámara 01"
-    folder: ""
+    folder: "Dashboards"
     type: file
     disableDeletion: false
     editable: true
-    updateIntervalSeconds: 10
     options:
       path: /etc/grafana/dashboards

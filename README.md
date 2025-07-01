@@ -90,16 +90,9 @@ IOT_2025/
 ```shell
 docker compose up -d
 ```
-Una vez levantado los contenedores, ingresar a NodeRed (http://localhost:1880/) e instalar la paleta "node-red-contrib-influxdb".
+Una vez levantado los contenedores, ingresar a NodeRed (http://localhost:1880/) e instalar las paletas:
+- node-red-contrib-influxdb
 
-- Para crear la BD en Influx:
-```shell
-docker exec -it iot_2025-influxdb-1 influx -execute "create database iot2025_tp_final"
-```
-- Para ver las bases creadas:
-```shell
-docker exec -it iot_2025-influxdb-1 influx -execute "show databases"
-```
 ---
 
 
