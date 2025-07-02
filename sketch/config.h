@@ -2,9 +2,9 @@
 #define M3 8.0                    // Volumen en metros cúbicos de la cámara (por defecto 2x2x2).
 #define KGS_PAPAS 5000.0           // Cantidad deakilos de papas almacenados (por defecto 5000kg).
 #define VENTILACION 150.0         // Reducción de CO2 por ventilación (por defecto 150ppm por vuelta de loop).
-#define CO2_PPM_H 10.0           // CO2 en ppm por hora generado por un kilo de papas (por defecto 10ppm/hora).
+#define CO2_PPM_H 11.0           // CO2 en ppm por hora generado por un kilo de papas (por defecto 10ppm/hora).
 #define CO2_PPM_S (CO2_PPM_H / 3600.0) // CO2 en ppm por segundo generado por un kilo de papas (10ppm/hora / 3600 segundos).
-#define FACTOR_CO2_PODRIDAS 2.0 // Factor de aumento de CO2 por segundo cuando las papas se pudren (por defecto el doble de lo normal).
+#define FACTOR_CO2_PODRIDAS 5.9 // Factor de aumento de CO2 por segundo cuando las papas se pudren (por defecto seis veces lo normal).
 #define CHANCE_PUDRICION 2.0  // Por vuelta del loop se pudren entre 0% y 2% de las papas totales (por defecto 2%).
 
 // Valores de referencia para CO2 en ppm por m3 para un frigorífico con papas:
