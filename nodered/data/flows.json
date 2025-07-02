@@ -625,7 +625,7 @@
         "type": "function",
         "z": "de00eae9dfa0e3da",
         "name": "Calcular KG Podridos",
-        "func": "const kgPapaPodrida = parseFloat(msg.payload.podridas) || 0; // Esto es un Mock.\nif (kgPapaPodrida !== 0) {\n    flow.set(\"kgPapaPodrida\", kgPapaPodrida);\n}\ndelete msg.payload.podridas;\n\nconst kgPapaSana = parseFloat(msg.payload.sanas) || 0; // Esto es un Mock.\nif (kgPapaSana !== 0) {\n    flow.set(\"kgPapaSana\", kgPapaSana);\n}\ndelete msg.payload.sanas;\n\nreturn [\n    msg,\n    { payload: kgPapaPodrida },\n    { payload: kgPapaSana }\n];\n",
+        "func": "let kgPapaPodrida = parseFloat(msg.payload.podridas) || 0.0; // Esto es un Mock.\n\nif (kgPapaPodrida !== 0) {\n    flow.set(\"kgPapaPodrida\", kgPapaPodrida);\n}\ndelete msg.payload.podridas;\n\nconst kgPapaSana = parseFloat(msg.payload.sanas) || 0; // Esto es un Mock.\nif (kgPapaSana !== 0) {\n    flow.set(\"kgPapaSana\", kgPapaSana);\n}\ndelete msg.payload.sanas;\n\nreturn [\n    msg,\n    { payload: kgPapaPodrida },\n    { payload: kgPapaSana }\n];\n",
         "outputs": 3,
         "timeout": 0,
         "noerr": 0,
@@ -642,6 +642,46 @@
             [
                 "0b40662ff96305cc"
             ],
+            []
+        ]
+    },
+    {
+        "id": "9af0f9457a0a72df",
+        "type": "function",
+        "z": "de00eae9dfa0e3da",
+        "name": "Calcular KG Podridos",
+        "func": "let kgPapaPodrida = parseFloat(msg.payload.podridas) || 0.0; // Esto es un Mock.\n\nif (kgPapaPodrida !== 0) {\n    flow.set(\"kgPapaPodrida\", kgPapaPodrida);\n}\ndelete msg.payload.podridas;\n\nconst kgPapaSana = parseFloat(msg.payload.sanas) || 0; // Esto es un Mock.\nif (kgPapaSana !== 0) {\n    flow.set(\"kgPapaSana\", kgPapaSana);\n}\ndelete msg.payload.sanas;\n\nreturn [\n    msg,\n    { payload: kgPapaPodrida },\n    { payload: kgPapaSana }\n];\n",
+        "outputs": 3,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 200,
+        "y": 560,
+        "wires": [
+            [],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "062adb440546d652",
+        "type": "function",
+        "z": "de00eae9dfa0e3da",
+        "name": "Calcular KG Podridos",
+        "func": "// Inputs del sensor y simulador\nlet co2_actual = msg.payload.co2;\nlet co2_anterior = flow.get(\"ultimoCO2\") || co2_actual;\nflow.set(\"ultimoCO2\", co2_actual);\n\nlet delta = co2_actual - co2_anterior;\nlet delta_hora = delta * 720.0;\n\nlet kilos_total = flow.get(\"kg\") || 5000.0;\nlet ppm_sana = 11.0;\nlet ppm_podrida = 65.0;\n\n// Calcular estimación de kg podridos\nlet kilos_podridos_estimado = (delta_hora - kilos_total * ppm_sana) / (ppm_podrida - ppm_sana);\nkilos_podridos_estimado = Math.max(0.0, Math.min(kilos_total, kilos_podridos_estimado));\n\n// Guardar si es válido (>0)\nif (kilos_podridos_estimado > 0) {\n    flow.set(\"kgPapaPodrida\", kilos_podridos_estimado);\n}\n\n// Leer mocks si están\nconst kgPapaPodrida_mock = parseFloat(msg.payload.podridas) || 0.0;\nconst kgPapaSana_mock = parseFloat(msg.payload.sanas) || 0.0;\n\nif (kgPapaSana_mock > 0) {\n    flow.set(\"kgPapaSana\", kgPapaSana_mock);\n}\n\nnode.warn(\"co2_actual: \" + co2_actual);\nnode.warn(\"co2_anterior: \" + co2_anterior);\nnode.warn(\"delta_co2: \" + delta);\nnode.warn(\"delta_hora: \" + delta_hora);\nnode.warn(\"kg: \" + flow.get(\"kg\"));\nnode.warn(\"Estimado podridas: \" + kilos_podridos_estimado);\n\ndelete msg.payload.podridas;\ndelete msg.payload.sanas;\n\nreturn [\n    msg,\n    { payload: kilos_podridos_estimado },\n    { payload: kgPapaSana_mock }\n];\n",
+        "outputs": 3,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 500,
+        "y": 560,
+        "wires": [
+            [],
+            [],
             []
         ]
     }

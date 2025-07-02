@@ -1,4 +1,4 @@
-# Control de Ventanas por CO2  - TP2  IOT 2025
+# Simulación y Control de CO2 en Cámara de Papas - Trabajo Final IOT 2025
 
 ## Integrantes
 
@@ -9,24 +9,21 @@
 
 ## Descripción del Proyecto
 
-Este proyecto corresponde a la **segunda parte** del sistema de control de ventanas basado en CO2 , desarrollado para la materia *Internet de las Cosas (2025)*. Se eliminó la automatización mediante Telegram y se incorporaron herramientas propias de entornos industriales IoT para lograr una solución robusta y monitoreable.
+Este proyecto simula el funcionamiento de una cámara de almacenamiento de papas, donde se controla la ventilación en base a la concentración de CO2. El sistema está desarrollado para la materia *Internet de las Cosas (2025)* y utiliza herramientas industriales IoT para lograr una solución robusta y monitoreable.
 
-Se simula el comportamiento de un sistema donde un **ESP32** publica lecturas de **CO2 ** y **humedad** a un **broker MQTT**, y **Node-RED** se encarga del procesamiento, ordenamiento y almacenamiento de los datos, incluyendo el control de apertura de las ventanas. La visualización histórica y en tiempo real se realiza mediante **InfluxDB** y **Grafana**.
+El **ESP32** simula la generación de CO2 en función de la cantidad de papas (normales y podridas) y el volumen de la cámara, publicando periódicamente el valor de CO2 a un **broker MQTT**. Node-RED recibe estos datos, los almacena en **InfluxDB** y permite visualizar el histórico y el estado en tiempo real mediante **Grafana**. Además, desde Node-RED se pueden enviar comandos al ESP32 para:
 
-Entre las funcionalidades principales:
+- Activar/desactivar la ventilación.
+- Modificar la cantidad de papas (kg).
+- Modificar el volumen de la cámara (m³).
 
-- Simulación verosímil de variables físicas (CO2  y humedad).
-- Publicación periódica al broker MQTT.
-- Subscripción del ESP32 para recibir órdenes desde Node-RED (abrir/cerrar ventana).
-- Almacenamiento histórico en base de datos InfluxDB.
-- Visualización mediante dashboards en Grafana.
-- Contenerización completa del entorno con Docker Compose.
+El sistema permite experimentar en tiempo real cómo varía el CO2 según los parámetros y el estado de la ventilación.
 
 ---
 
 ## Tecnologías Utilizadas
 
-- **ESP32 DevKit V1**
+- **ESP32**
 - **MQTT (Mosquitto)**
 - **Node-RED**
 - **InfluxDB**
@@ -37,22 +34,22 @@ Entre las funcionalidades principales:
 ---
 
 ## Capturas de Pantalla
-
-* _MQTT Explorer_
-  
-![MQTT Explorer](resources/mqtt_explorer.png)
   
 * _Node-RED_
   
-![Node-RED](resources/node-red.png)
+![Node-RED](resources/node-red.jpg)
+
+* _MQTT Explorer_
+  
+![MQTT Explorer](resources/mqtt_explorer.jpg)
 
 * _InfluxDB_
   
-![InfluxDB](resources/influx.png)
+![InfluxDB](resources/influxdb_co2.jpg) ![InfluxDB](resources/influxdb_podridas.jpg)
 
 * _Grafana_
   
-![Grafana](resources/grafana.png)
+![Grafana](resources/grafana.jpg)
 
 
 ---
@@ -61,24 +58,31 @@ Entre las funcionalidades principales:
 
 ```
 IOT_2025/
-├── docker/ # Archivos de definición de servicios para Docker
-│ └── docker-compose.yml # Orquestación de servicios (Node-RED, Mosquitto, InfluxDB, Grafana)
-├── grafana/ # Configuración inicial de dashboards (opcional)
-├── node-red/ # Flujos exportados de Node-RED (.json)
-├── sketch/ # Código fuente del ESP32
-│ ├── config.h
-│ ├── env.h
-│ ├── env.h.example
-│ ├── sketch.ino
-│ ├── CO2 Sensor.cpp / .h
-│ ├── HumSensor.cpp / .h
-│ └── WifiConn.cpp / .h
-├── resources/ # Capturas y otros recursos (vacío por ahora)
-├── wokwi/ # Proyecto de simulación en Wokwi
-│ ├── diagram.json
-│ └── wokwi-project.txt
+├── docker-compose.yml         # Orquestación de servicios (Node-RED, Mosquitto, InfluxDB, Grafana)
+├── grafana/                   # Configuración inicial de dashboards (opcional)
+├── node-red-data/             # Flujos y datos persistentes de Node-RED
+├── mosquitto/                 # Configuración y datos de Mosquitto
+├── telegraf/                  # Configuración de Telegraf (opcional)
+├── esp32_mock/                # Mock de ESP32 en Node.js (opcional)
+├── resources/                 # Capturas de las tecnologías utilizadas
+├── sketch/                    # Código fuente del ESP32
+│   ├── CO2Sensor.cpp
+│   ├── CO2Sensor.h
+│   ├── HumSensor.cpp
+│   ├── HumSensor.h
+│   ├── WifiConn.cpp
+│   ├── WifiConn.h
+│   ├── MqttClient.cpp
+│   ├── MqttClient.h
+│   ├── config.h
+│   ├── env.h
+│   ├── env.h.example
+│   └── sketch.ino
+├── wokwi/                     # Proyecto de simulación en Wokwi
+│   ├── diagram.json
+│   └── wokwi-project.txt
 ├── .gitignore
-└── README.md # Este archivo
+└── README.md                  # Este archivo
 ```
 
 ---
@@ -96,27 +100,36 @@ Una vez levantado los contenedores, ingresar a NodeRed (http://localhost:1880/) 
 ---
 
 
-## Flujo de Datos
 
-1. **ESP32** publica CO2  y humedad en un tópico MQTT "esp/sensores" cada 5 segundos. A su vez, se suscribe a "esp32/ventanas".
+## Flujo de Datos y Control
+
+1. **ESP32** simula y publica el valor de CO2 en el tópico MQTT `camara/<ID>/co2` cada 5 segundos.
 2. **Node-RED**:
-   - Se suscribe a "esp32/sensores" y almacena los datos en **InfluxDB**.
-   - Evalúa las condiciones de clima y para terperaturas debajo de los 20 o por encima de los 30 grados detectados, publica en el tópico "esp/ventanas" los mensajes "cerrar" o "abrir" respectivamente.
-3. **ESP32** actúa según lo recibido en su suscripción a "camara/01/vetilacion" mediante el método _callback()_: ordenando al sistema de ventilación a prenderse o apagarse.
-4. **Grafana** consulta InfluxDB y presenta los datos de CO2  y humedad en tiempo real o de forma histórica.
+   - Se suscribe a `camara/<ID>/co2` y almacena los datos en **InfluxDB**.
+   - Permite visualizar y analizar el histórico y el estado actual en **Grafana**.
+   - Permite enviar comandos al ESP32 mediante los siguientes tópicos:
+     - `camara/<ID>/ventilacion` ("prender"/"apagar")
+     - `camara/<ID>/kilos` (float, kilos de papas)
+     - `camara/<ID>/m3` (float, volumen de la cámara)
+3. **ESP32** recibe estos comandos y ajusta la simulación en tiempo real:
+   - Cambia el estado de la ventilación (afectando la concentración de CO2)
+   - Modifica la cantidad de papas o el volumen de la cámara
+4. **Grafana** consulta InfluxDB y presenta los datos de CO2 en tiempo real o históricos.
 
 ---
+
 
 ## Notas
 
 - El archivo `./sketch/env.h` debe contener las credenciales necesarias para conectar el ESP32 a la red Wi-Fi y al broker MQTT.
-- `config.h` define constantes como los umbrales de CO2  para abrir/cerrar la ventana, tiempo entre publicaciones, etc.
-- La simulación de CO2  y humedad puede activarse según el entorno (real o Wokwi).
-- El entorno completo puede correr en Docker (ver `docker-compose.yml` en el repositorio referenciado en este readme).
-- Para ver los dashboards, acceder a Grafana (`localhost:3000`) y cargar el dashboard con la configuración guardada en _grafana.json_"_.
+- `config.h` define constantes como los umbrales de CO2, tiempo entre publicaciones, etc.
+- El entorno completo puede correr en Docker (`docker-compose.yml`).
+- Para ver los dashboards, acceder a Grafana (`localhost:3000`).
 
 ---
 
 ## Simulación de Variables
 
-- Simula valores aleatórios entre **5°C y 45°C** y **10% y 90%** de humedad, de manera ligeramente cambiantes para gráficos no tan lineales.
+- El valor de CO2 se simula en función de la cantidad de papas, el volumen de la cámara y el estado de la ventilación.
+- Se puede modificar en tiempo real la cantidad de papas y el volumen desde Node-RED.
+- El sistema permite experimentar el efecto de la ventilación sobre la concentración de CO2.
